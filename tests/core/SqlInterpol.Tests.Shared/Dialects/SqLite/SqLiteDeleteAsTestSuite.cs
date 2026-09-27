@@ -21,8 +21,8 @@ public partial class SqLiteDeleteAsTestSuite : IDeleteAsTestSuite
         new SqlTestCase(
             expectedSql: [
                 """
-                DELETE FROM "dbo"."Orders"
-                WHERE "dbo"."Orders"."Id" = @p1
+                DELETE FROM "Orders"
+                WHERE "Orders"."Id" = @p1
                 """
             ],
             expectedParameters: _expectedParameters

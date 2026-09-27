@@ -19,7 +19,7 @@ public partial class SqLiteWhereSubqueryTestSuite : IWhereSubqueryTestSuite
             (
                 SELECT 
                     "p"."CategoryId"
-                FROM "dbo"."Products" AS "p"
+                FROM "Products" AS "p"
                 WHERE "p"."Price" > 0
             )
             """

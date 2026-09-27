@@ -20,7 +20,7 @@ public partial class SqLiteJoinSubqueryTestSuite : IJoinSubqueryTestSuite
             SELECT 
                 "p"."CategoryId" AS "CategoryId",
                 SUM("p"."Price") AS "TotalPrice"
-            FROM "dbo"."Products" AS "p"
+            FROM "Products" AS "p"
             GROUP BY "p"."CategoryId"
         ) AS "stats"
             ON "stats"."CategoryId" = "c"."Id"

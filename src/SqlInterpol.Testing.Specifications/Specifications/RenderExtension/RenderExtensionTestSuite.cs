@@ -30,7 +30,7 @@ public abstract partial class RenderExtensionTestSuite
         testCase.Act(() =>
         {
             db.Entity<Product>(out var p, "prod");
-            return db.Append($"SELECT {p.AsAlias()}.* FROM dbo.Products AS {p.AsAlias()}").Build();
+            return db.Append($"SELECT {p.AsAlias()}.* FROM Products AS {p.AsAlias()}").Build();
         });
 
         testCase.Assert();

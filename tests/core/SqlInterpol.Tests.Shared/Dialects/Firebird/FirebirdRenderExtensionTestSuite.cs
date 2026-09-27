@@ -10,7 +10,7 @@ public partial class FirebirdRenderExtensionTestSuite : IRenderExtensionTestSuit
     public SqlBuilder CreateBuilder(SqlInterpolOptions? options = null) => SqlBuilder.Firebird(options);
 
     public static TheoryData<SqlTestCase> AsDeclarationData => [new SqlTestCase(["SELECT * FROM \"dbo\".\"Products\" AS \"prod\""])];
-    public static TheoryData<SqlTestCase> AsAliasData => [new SqlTestCase(["SELECT \"prod\".* FROM dbo.Products AS \"prod\""])];
+    public static TheoryData<SqlTestCase> AsAliasData => [new SqlTestCase(["SELECT \"prod\".* FROM Products AS \"prod\""])];
     public static TheoryData<SqlTestCase> AsBaseData => [new SqlTestCase(["TRUNCATE TABLE \"dbo\".\"Products\""])];
     public static TheoryData<SqlTestCase> AsColumnData => [new SqlTestCase(["SELECT \"PROD_NAME\" FROM \"dbo\".\"Products\" AS \"prod\""])];
 

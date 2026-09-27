@@ -20,7 +20,7 @@ public partial class SqLiteSelectSubqueryTestSuite : ISelectSubqueryTestSuite
                     FROM "Category"
                     WHERE "Category"."Id" = "prod"."CategoryId" AND "Category"."IsActive" = @p1
                 ) AS "CategoryName"
-            FROM "dbo"."Products" AS "prod"
+            FROM "Products" AS "prod"
             WHERE "prod"."Price" > @p2
             """,
             """
@@ -32,7 +32,7 @@ public partial class SqLiteSelectSubqueryTestSuite : ISelectSubqueryTestSuite
                     FROM "Category"
                     WHERE "Category"."Id" = "second_prod"."CategoryId" AND "Category"."IsActive" = @p1
                 ) AS "CategoryName"
-            FROM "dbo"."Products" AS "second_prod"
+            FROM "Products" AS "second_prod"
             WHERE "second_prod"."Price" > @p2
             """
         ],

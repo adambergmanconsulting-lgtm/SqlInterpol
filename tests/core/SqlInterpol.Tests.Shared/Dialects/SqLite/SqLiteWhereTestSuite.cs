@@ -13,9 +13,9 @@ public partial class SqLiteWhereTestSuite : IWhereTestSuite
         expectedSql: [
             """
             SELECT
-                "dbo"."Products"."Id"
-            FROM "dbo"."Products"
-            WHERE "dbo"."Products"."Id" = @p1
+                "Products"."Id"
+            FROM "Products"
+            WHERE "Products"."Id" = @p1
             """
         ],
         expectedParameters: [42]
@@ -25,9 +25,9 @@ public partial class SqLiteWhereTestSuite : IWhereTestSuite
         expectedSql: [
             """
             SELECT
-                "dbo"."Products"."Id"
-            FROM "dbo"."Products"
-            WHERE "dbo"."Products"."CategoryId" IN (@p1, @p2, @p3)
+                "Products"."Id"
+            FROM "Products"
+            WHERE "Products"."CategoryId" IN (@p1, @p2, @p3)
             """
         ],
         expectedParameters: [10, 20, 30]

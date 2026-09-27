@@ -15,6 +15,7 @@ public abstract partial class SegmentRewriterTestSuite
         {
             var rewritten = new List<SqlSegment>(segments.Count + 2);
             bool hasInjectedSet = false;
+            bool justRemovedFrom = false;
 
             for (int i = 0; i < segments.Count; i++)
             {
@@ -26,6 +27,7 @@ public abstract partial class SegmentRewriterTestSuite
                     var text = seg.Value?.ToString() ?? "";
                     text = Regex.Replace(text, @"\bDELETE\b", "UPDATE", RegexOptions.IgnoreCase);
                     rewritten.Add(new SqlSegment(SqlSegmentType.Literal, text, seg.RenderMode, SqlSegmentTag.UpdateKeyword));
+                    justRemovedFrom = false;
                 }
                 // 2. Erase the standalone FROM keyword so it becomes "UPDATE Table" instead of "UPDATE FROM Table"
                 else if (seg.HasTag(SqlSegmentTag.FromKeyword))
@@ -37,17 +39,32 @@ public abstract partial class SegmentRewriterTestSuite
                         // Pass the existing tags array forward
                         rewritten.Add(new SqlSegment(SqlSegmentType.Literal, text, seg.RenderMode, seg.Tags));
                     }
+                    else
+                    {
+                        // We completely erased the FROM segment. 
+                        // Flag it so we can consume the orphaned trailing space.
+                        justRemovedFrom = true;
+                    }
                 }
                 // 3. Inject the SET clause right before the WHERE clause
                 else if (seg.HasTag(SqlSegmentTag.WhereKeyword) && !hasInjectedSet)
                 {
-                    rewritten.Add(new SqlSegment(SqlSegmentType.Literal, $" SET IsDeleted = 1{Environment.NewLine}"));
+                    rewritten.Add(new SqlSegment(SqlSegmentType.Literal, $"SET IsDeleted = 1{Environment.NewLine}"));
                     rewritten.Add(seg);
                     hasInjectedSet = true;
+                    justRemovedFrom = false;
                 }
                 else
                 {
+                    // 4. Prevent double spaces: if we just deleted FROM and this is a whitespace segment, drop it.
+                    if (justRemovedFrom && string.IsNullOrWhiteSpace(seg.Value?.ToString()))
+                    {
+                        justRemovedFrom = false; // Only eat a single space segment
+                        continue;
+                    }
+
                     rewritten.Add(seg);
+                    justRemovedFrom = false;
                 }
             }
 

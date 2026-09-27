@@ -14,7 +14,7 @@ public partial class SqLiteWhereAsTestSuite : IWhereAsTestSuite
             """
             SELECT
                 "p"."Id" AS "ProductId"
-            FROM "dbo"."Products" AS "p"
+            FROM "Products" AS "p"
             WHERE "p"."Id" = @p1 AND "p"."CategoryId" = @p2
             """
         ],

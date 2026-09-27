@@ -52,7 +52,7 @@ public abstract partial class JoinAsTestSuite
                 SELECT
                     {{prod.Id}},
                     {{OrderLine.OrderId}}
-                FROM dbo.Products AS {{prod:alias}}
+                FROM Products AS {{prod:alias}}
                 JOIN order_lines AS {{OrderLine:alias}}
                     ON {{prod.Id}} = {{OrderLine.ProductItemNumber}}
                 """).Build();

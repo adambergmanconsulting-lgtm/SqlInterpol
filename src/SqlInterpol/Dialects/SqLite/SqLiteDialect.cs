@@ -27,6 +27,14 @@ public class SqLiteDialect : SqlDialectBase
     
     /// <inheritdoc />
     public override string ParameterPrefix => "@p";
+
+    /// <inheritdoc />
+    public override string QuoteEntityName(string table, string? schema = null)
+    {
+        // SQLite does not support database schemas. 
+        // We intentionally discard the schema to prevent syntax errors.
+        return QuoteIdentifier(table);
+    }
     
     /// <inheritdoc />
     public override IReadOnlySet<SqlFeature> SupportedFeatures { get; } =

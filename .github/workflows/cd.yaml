@@ -45,7 +45,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
         shell: pwsh
         run: |
-          Import-Module './.github/workflows/scripts/CICD.DotNet.psm1'
+          Import-Module './.github/scripts/CICD.DotNet.psm1'
           $allErrors = @()
           Get-ChildItem -Path '${{ env.SRC_PATH }}' -Filter 'project.assets.json' -Recurse | ForEach-Object {
               Test-ProjectAsset -Path $_.Directory.Parent.FullName -ErrorVariable 'projectErrors'

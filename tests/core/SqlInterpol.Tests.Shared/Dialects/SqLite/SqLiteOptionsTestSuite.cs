@@ -15,7 +15,7 @@ public partial class SqLiteOptionsTestSuite : IOptionsTestSuite
     )];
 
     public static TheoryData<SqlTestCase> EnumFormattingData => [new SqlTestCase(
-        expectedSql: ["UPDATE \"dbo\".\"Users\" SET \"Status\" = @p1"],
+        expectedSql: ["UPDATE \"Users\" SET \"Status\" = @p1"],
         expectedParameters: ["Active"]
     )];
 

@@ -25,7 +25,7 @@ public partial class FirebirdJoinAsTestSuite : IJoinAsTestSuite
         SELECT
             "prod"."Id",
             "OrderLine"."OrderId"
-        FROM dbo.Products AS "prod"
+        FROM Products AS "prod"
         JOIN order_lines AS "OrderLine"
             ON "prod"."Id" = "OrderLine"."ProductItemNumber"
         """

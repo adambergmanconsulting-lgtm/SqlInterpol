@@ -1,0 +1,74 @@
+name: Live Database E2E Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Target database(s) (e.g. "PostgreSQL", "PostgreSQL, SqlServer", or leave empty for "all")'
+        required: false
+        default: ''
+        type: string
+
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+  prepare-matrix:
+    name: Prepare Test Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      dialects: ${{ steps.set-matrix.outputs.dialects }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Resolve Dynamic Matrix
+        id: set-matrix
+        run: .github/scripts/Get-E2EDatabaseMatrix.ps1 -Target "${{ inputs.target }}"
+
+  run-e2e:
+    name: Test ${{ matrix.dialect }}
+    needs: prepare-matrix
+    if: ${{ needs.prepare-matrix.outputs.dialects != '[]' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        dialect: ${{ fromJson(needs.prepare-matrix.outputs.dialects) }}
+        
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Boot Database (${{ matrix.dialect }})
+        run: docker compose -f docker-compose.e2e.yml up -d ${{ matrix.dialect }}
+
+      - name: Wait for Database Warmup
+        run: Start-Sleep -Seconds 15
+
+      - name: Run E2E Integration Tests
+        run: dotnet test tests/SqlInterpol.E2E.Tests --filter "Category=${{ matrix.dialect }}"
+
+      - name: Teardown Database
+        if: always()
+        run: docker compose -f docker-compose.e2e.yml down
+
+  e2e-gatekeeper:
+    name: E2E Gatekeeper
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [run-e2e]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Evaluate E2E Results
+        env:
+          NEEDS_JSON: ${{ toJson(needs) }}
+        run: .github/scripts/Test-E2EDatabaseGatekeeper.ps1

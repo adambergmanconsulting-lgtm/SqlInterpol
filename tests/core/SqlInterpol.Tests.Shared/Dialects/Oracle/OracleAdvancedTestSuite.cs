@@ -74,7 +74,7 @@ public partial class OracleAdvancedTestSuite : IAdvancedTestSuite
                 SELECT "dbo"."Products"."Id", "dbo"."Products"."PROD_NAME"
                 FROM "dbo"."Products"
                 WHERE "dbo"."Products"."Price" > :0
-                  AND p.Status = 'ACTIVE' /* Raw SQL condition */
+                  AND Products.Status = 'ACTIVE' /* Raw SQL condition */
                 GROUP BY "dbo"."Products"."Id", "dbo"."Products"."PROD_NAME"
                 HAVING COUNT(*) > 1
                 ORDER BY "dbo"."Products"."PROD_NAME" DESC

@@ -183,7 +183,7 @@ public abstract partial class AdvancedTestSuite
                 SELECT {p.Id}, {p.Name}
                 FROM {p}
                 WHERE {p.Price} > {minPrice}
-                  AND p.Status = 'ACTIVE' /* Raw SQL condition */
+                  AND Products.Status = 'ACTIVE' /* Raw SQL condition */
                 GROUP BY {p.Id}, {p.Name}
                 HAVING COUNT(*) > 1
                 ORDER BY {p.Name} DESC

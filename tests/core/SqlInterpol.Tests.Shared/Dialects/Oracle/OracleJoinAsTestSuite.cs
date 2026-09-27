@@ -25,7 +25,7 @@ public partial class OracleJoinAsTestSuite : IJoinAsTestSuite
         SELECT
             "prod"."Id",
             "OrderLine"."OrderId"
-        FROM dbo.Products "prod"
+        FROM Products "prod"
         JOIN order_lines "OrderLine"
             ON "prod"."Id" = "OrderLine"."ProductItemNumber"
         """

@@ -14,7 +14,7 @@ public partial class SqLiteInsertSubqueryTestSuite : IInsertSubqueryTestSuite
     public static TheoryData<SqlTestCase> InsertSelectData => [new SqlTestCase(
         expectedSql: [
             """
-            INSERT INTO "dbo"."Orders" 
+            INSERT INTO "Orders" 
             ("Id", "Total")
             SELECT "OrderLine"."OrderId", "OrderLine"."Quantity"
             FROM "OrderLine"

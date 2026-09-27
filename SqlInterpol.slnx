@@ -16,6 +16,9 @@
     <Project Path="tests/core/SqlInterpol.Tests.Jit/SqlInterpol.Tests.Jit.csproj" />
     <Project Path="tests/core/SqlInterpol.Tests.Shared/SqlInterpol.Tests.Shared.csproj" />
   </Folder>
+  <Folder Name="/tests/e2e/">
+    <Project Path="tests/e2e/SqlInterpol.E2E.Tests/SqlInterpol.E2E.Tests.csproj" />
+  </Folder>
 
   <Folder Name="/tests/extensibility/">
     <Project Path="tests/extensibility/SqlInterpol.Extensibility/SqlInterpol.Extensibility.csproj" />

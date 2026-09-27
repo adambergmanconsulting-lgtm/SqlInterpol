@@ -12,7 +12,7 @@ public partial class SqLiteUpsertTestSuite : IUpsertTestSuite
     public static TheoryData<SqlTestCase> UpsertData => [new SqlTestCase(
         expectedSql: [
             """
-            INSERT INTO "dbo"."Products" ("Id", "PROD_NAME", "CategoryId", "Price")
+            INSERT INTO "Products" ("Id", "PROD_NAME", "CategoryId", "Price")
             VALUES (@p1, @p2, @p3, @p4)
             ON CONFLICT ("Id")
             DO UPDATE SET "PROD_NAME" = @p5, "Price" = @p6
@@ -24,7 +24,7 @@ public partial class SqLiteUpsertTestSuite : IUpsertTestSuite
     public static TheoryData<SqlTestCase> OnDuplicateKeyData => [new SqlTestCase(
         expectedSql: [
             """
-            INSERT INTO "dbo"."Products" (Id, Price)
+            INSERT INTO "Products" (Id, Price)
             VALUES (@p1, @p2)
             ON DUPLICATE KEY UPDATE Price = @p3
             """
@@ -35,7 +35,7 @@ public partial class SqLiteUpsertTestSuite : IUpsertTestSuite
     public static TheoryData<SqlTestCase> OnConflictData => [new SqlTestCase(
         expectedSql: [
             """
-            INSERT INTO "dbo"."Products" (Id)
+            INSERT INTO "Products" (Id)
             VALUES (@p1)
             ON CONFLICT DO NOTHING
             """

@@ -12,7 +12,7 @@ public partial class SqLiteOrderByAsTestSuite : IOrderByAsTestSuite
     public static TheoryData<SqlTestCase> OrderByWithExplicitAliasData => [new SqlTestCase([
         """
         SELECT *
-        FROM "dbo"."Products" AS "prod"
+        FROM "Products" AS "prod"
         ORDER BY
             "prod"."PROD_NAME" ASC
         """

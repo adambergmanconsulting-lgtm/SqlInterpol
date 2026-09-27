@@ -1,3 +1,4 @@
+using System.Data;
 using Xunit.Abstractions;
 
 namespace SqlInterpol.Testing.Xunit;
@@ -8,6 +9,12 @@ namespace SqlInterpol.Testing.Xunit;
 /// </summary>
 public sealed class SqlTestCase : IXunitSerializable
 {
+    /// <summary>
+    /// Holds the active live database connection for E2E specification execution.
+    /// When populated by an E2E test fixture, generated queries are executed against the real database engine.
+    /// </summary>
+    public static AsyncLocal<IDbConnection?> CurrentConnection { get; } = new();
+
     /// <summary>
     /// Gets a helper instance used to assert that the actual execution results match the expected state.
     /// </summary>
@@ -67,11 +74,6 @@ public sealed class SqlTestCase : IXunitSerializable
     /// <summary>
     /// Initializes a new test case that expects a successful SQL string generation.
     /// </summary>
-    /// <param name="expectedSql">The exact SQL string(s) expected to be generated.</param>
-    /// <param name="expectedParameters">The parameters expected to be passed with the query.</param>
-    /// <param name="id">An optional identifier for test runner UI display (e.g., the dialect name).</param>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="expectedSql"/> is null.</exception>
-    /// <exception cref="ArgumentException">Thrown if <paramref name="expectedSql"/> is empty.</exception>
     public SqlTestCase(string[] expectedSql, object?[]? expectedParameters = null, string? id = null)
     {
         ExpectedSql = expectedSql ?? throw new ArgumentNullException(nameof(expectedSql));
@@ -82,12 +84,8 @@ public sealed class SqlTestCase : IXunitSerializable
     }
 
     /// <summary>
-    /// Initializes a new test case that expects an exception to be thrown (e.g., for an unsupported dialect feature).
+    /// Initializes a new test case that expects an exception to be thrown.
     /// </summary>
-    /// <param name="expectedExceptionType">The type of the expected exception.</param>
-    /// <param name="expectedExceptionMessage">The exact message the exception should contain (optional).</param>
-    /// <param name="id">An optional identifier for test runner UI display (e.g., the dialect name).</param>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="expectedExceptionType"/> is null.</exception>
     public SqlTestCase(Type expectedExceptionType, string? expectedExceptionMessage = null, string? id = null)
     {
         ExpectedExceptionType = expectedExceptionType ?? throw new ArgumentNullException(nameof(expectedExceptionType));
@@ -96,9 +94,47 @@ public sealed class SqlTestCase : IXunitSerializable
     }
 
     /// <summary>
-    /// Serializes the test case for xUnit theory execution.
+    /// Executes the SQL generation logic, captures the output state, and automatically 
+    /// runs the query against a live database if an E2E connection is active.
     /// </summary>
-    /// <param name="info">The serialization info object provided by xUnit.</param>
+    public void Act(Func<SqlQueryResult> act)
+    {
+        try
+        {
+            var result = act();
+            ActualSql.Add(result.Sql);
+            ActualParametersList.Add(result.Parameters.Select(p => p.Value).ToArray());
+
+            // E2E Database Execution Bridge
+            if (CurrentConnection.Value is { } connection)
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = result.Sql;
+
+                // Use raw ADO.NET mapping to avoid forcing a Dapper dependency on the testing library
+                foreach (var p in result.Parameters)
+                {
+                    var param = command.CreateParameter();
+                    param.ParameterName = p.Key;
+                    param.Value = p.Value ?? DBNull.Value;
+                    
+                    // If your parameter model exposes DbType, uncomment the next line:
+                    // param.DbType = p.DbType; 
+                    
+                    command.Parameters.Add(param);
+                }
+
+                // If this fails, the DB syntax error is naturally caught and added to ActualExceptions,
+                // causing your SqlTestCaseAssert step to accurately fail the test.
+                command.ExecuteNonQuery();
+            }
+        }
+        catch (Exception ex)
+        {
+            ActualExceptions.Add(ex);
+        }
+    }
+
     public void Serialize(IXunitSerializationInfo info)
     {
         info.AddValue(nameof(ExpectedSql), ExpectedSql);
@@ -108,10 +144,6 @@ public sealed class SqlTestCase : IXunitSerializable
         info.AddValue(nameof(Id), Id);
     }
 
-    /// <summary>
-    /// Deserializes the test case during xUnit theory execution.
-    /// </summary>
-    /// <param name="info">The serialization info object provided by xUnit.</param>
     public void Deserialize(IXunitSerializationInfo info)
     {
         ExpectedSql = info.GetValue<string[]>(nameof(ExpectedSql));
@@ -127,10 +159,6 @@ public sealed class SqlTestCase : IXunitSerializable
         Id = info.GetValue<string>(nameof(Id));
     }
 
-    /// <summary>
-    /// Returns a string that represents the current test case in the xUnit Test Explorer.
-    /// </summary>
-    /// <returns>The <see cref="Id"/> if provided; otherwise, "TestCase".</returns>
     public override string ToString()
     {
         return string.IsNullOrWhiteSpace(Id) ? "TestCase" : Id;

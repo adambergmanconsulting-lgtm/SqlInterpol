@@ -15,11 +15,11 @@ public partial class SqLiteHavingTestSuite : IHavingTestSuite
         expectedSql: [
             """
             SELECT 
-                "dbo"."Products"."CategoryId",
-                COUNT("dbo"."Products"."Id") AS "ProductCount"
-            FROM "dbo"."Products"
-            GROUP BY "dbo"."Products"."CategoryId"
-            HAVING COUNT("dbo"."Products"."Id") > @p1
+                "Products"."CategoryId",
+                COUNT("Products"."Id") AS "ProductCount"
+            FROM "Products"
+            GROUP BY "Products"."CategoryId"
+            HAVING COUNT("Products"."Id") > @p1
             """
         ],
         expectedParameters: _expectedParameters

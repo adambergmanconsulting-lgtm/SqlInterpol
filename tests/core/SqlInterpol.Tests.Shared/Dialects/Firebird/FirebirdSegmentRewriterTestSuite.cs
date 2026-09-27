@@ -12,8 +12,8 @@ public partial class FirebirdSegmentRewriterTestSuite : ISegmentRewriterTestSuit
     public static TheoryData<SqlTestCase> SoftDeleteData => [new SqlTestCase(
         expectedSql: [
             """
-            UPDATE  "dbo"."Orders"
-             SET IsDeleted = 1
+            UPDATE "dbo"."Orders"
+            SET IsDeleted = 1
             WHERE "dbo"."Orders"."Id" = @p0
             """
         ],

@@ -11,7 +11,7 @@ public partial class SqLiteInsertTestSuite : IInsertTestSuite
 
     public static TheoryData<SqlTestCase> InsertData => [new SqlTestCase(
         expectedSql: ["""
-            INSERT INTO "dbo"."Products"
+            INSERT INTO "Products"
             ("PROD_NAME", "CategoryId", "Price")
             VALUES (@p1, @p2, @p3)
             """],
@@ -20,7 +20,7 @@ public partial class SqLiteInsertTestSuite : IInsertTestSuite
 
     public static TheoryData<SqlTestCase> ManualInsertData => [new SqlTestCase(
         expectedSql: ["""
-            INSERT INTO "dbo"."Orders"
+            INSERT INTO "Orders"
             ("order_status", "Total")
             VALUES (@p1, @p2)
             """],
@@ -29,7 +29,7 @@ public partial class SqLiteInsertTestSuite : IInsertTestSuite
 
     public static TheoryData<SqlTestCase> BulkInsertData => [new SqlTestCase(
         expectedSql: ["""
-            INSERT INTO "dbo"."Products" ("PROD_NAME", "CategoryId", "Price")
+            INSERT INTO "Products" ("PROD_NAME", "CategoryId", "Price")
             VALUES (@p1, @p2, @p3), (@p4, @p5, @p6)
             """],
         expectedParameters: ["Prod1", 1, 10m, "Prod2", 2, 20m]
@@ -37,7 +37,7 @@ public partial class SqLiteInsertTestSuite : IInsertTestSuite
 
     public static TheoryData<SqlTestCase> ReturningSingleData => [new SqlTestCase(
         expectedSql: ["""
-            INSERT INTO "dbo"."Products" ("PROD_NAME", "CategoryId", "Price")
+            INSERT INTO "Products" ("PROD_NAME", "CategoryId", "Price")
             VALUES (@p1, @p2, @p3)
             RETURNING "Id"
             """],
@@ -46,7 +46,7 @@ public partial class SqLiteInsertTestSuite : IInsertTestSuite
 
     public static TheoryData<SqlTestCase> ReturningMultipleData => [new SqlTestCase(
         expectedSql: ["""
-            INSERT INTO "dbo"."Products" ("PROD_NAME", "CategoryId", "Price")
+            INSERT INTO "Products" ("PROD_NAME", "CategoryId", "Price")
             VALUES (@p1, @p2, @p3)
             RETURNING "Id", "PROD_NAME"
             """],
@@ -55,7 +55,7 @@ public partial class SqLiteInsertTestSuite : IInsertTestSuite
 
     public static TheoryData<SqlTestCase> InsertWithIgnoreData => [new SqlTestCase(
         expectedSql: ["""
-            INSERT INTO "dbo"."Products" ("Id", "PROD_NAME")
+            INSERT INTO "Products" ("Id", "PROD_NAME")
             VALUES (@p1, @p2)
             """],
         expectedParameters: [1, "Gadget"]

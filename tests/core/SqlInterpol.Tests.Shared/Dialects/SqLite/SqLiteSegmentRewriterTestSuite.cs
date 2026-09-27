@@ -12,9 +12,9 @@ public partial class SqLiteSegmentRewriterTestSuite : ISegmentRewriterTestSuite
     public static TheoryData<SqlTestCase> SoftDeleteData => [new SqlTestCase(
         expectedSql: [
             """
-            UPDATE  "dbo"."Orders"
-             SET IsDeleted = 1
-            WHERE "dbo"."Orders"."Id" = @p1
+            UPDATE "Orders"
+            SET IsDeleted = 1
+            WHERE "Orders"."Id" = @p1
             """
         ],
         expectedParameters: [42]

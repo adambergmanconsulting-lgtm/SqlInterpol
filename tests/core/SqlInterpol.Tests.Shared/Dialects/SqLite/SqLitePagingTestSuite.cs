@@ -14,9 +14,9 @@ public partial class SqLitePagingTestSuite : IPagingTestSuite
     public static TheoryData<SqlTestCase> Paging_WithImplicitLimitOffsetData => [new SqlTestCase(
         expectedSql: [
             """
-            SELECT "dbo"."Products"."Id", "dbo"."Products"."PROD_NAME"
-            FROM "dbo"."Products"
-            ORDER BY "dbo"."Products"."Id"
+            SELECT "Products"."Id", "Products"."PROD_NAME"
+            FROM "Products"
+            ORDER BY "Products"."Id"
             LIMIT @p1 OFFSET @p2
             """
         ],

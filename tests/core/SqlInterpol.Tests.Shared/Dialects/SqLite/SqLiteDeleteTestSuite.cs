@@ -18,8 +18,8 @@ public partial class SqLiteDeleteTestSuite : IDeleteTestSuite
         new SqlTestCase(
             expectedSql: [
                 """
-                DELETE FROM "dbo"."Orders"
-                WHERE "dbo"."Orders"."Id" = @p1
+                DELETE FROM "Orders"
+                WHERE "Orders"."Id" = @p1
                 """
             ],
             expectedParameters: _pureManualParams
@@ -31,9 +31,9 @@ public partial class SqLiteDeleteTestSuite : IDeleteTestSuite
         new SqlTestCase(
             expectedSql: [
                 """
-                DELETE FROM "dbo"."Products"
+                DELETE FROM "Products"
                 FROM "Category" AS "c1"
-                WHERE "dbo"."Products"."CategoryId" = c1.Id
+                WHERE "Products"."CategoryId" = c1.Id
                 """
             ],
             expectedParameters: _multiTableParams

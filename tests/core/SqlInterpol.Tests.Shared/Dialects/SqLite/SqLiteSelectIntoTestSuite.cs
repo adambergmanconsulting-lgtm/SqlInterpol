@@ -12,16 +12,16 @@ public partial class SqLiteSelectIntoTestSuite : ISelectIntoTestSuite
     public static TheoryData<SqlTestCase> SelectIntoData => [new SqlTestCase([
         """
         CREATE TABLE "#TempProducts" AS
-        SELECT "dbo"."Products"."Id", "dbo"."Products"."PROD_NAME"
-        FROM "dbo"."Products"
+        SELECT "Products"."Id", "Products"."PROD_NAME"
+        FROM "Products"
         """
     ])];
 
     public static TheoryData<SqlTestCase> SelectIntoParameterizedData => [new SqlTestCase([
         """
         CREATE TABLE #TempProducts AS
-        SELECT "dbo"."Products"."Id", "dbo"."Products"."PROD_NAME"
-        FROM "dbo"."Products"
+        SELECT "Products"."Id", "Products"."PROD_NAME"
+        FROM "Products"
         """
     ])];
 }

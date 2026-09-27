@@ -11,17 +11,17 @@ public partial class SqLiteUpdateTestSuite : IUpdateTestSuite
     public SqlBuilder CreateBuilder(SqlInterpolOptions? options = null) => SqlBuilder.SqLite(options);
 
     public static TheoryData<SqlTestCase> UpdateData => [new SqlTestCase(
-        expectedSql: ["UPDATE \"dbo\".\"Orders\"\nSET \"order_status\" = @p1, \"Total\" = @p2\nWHERE \"dbo\".\"Orders\".\"Id\" = @p3"],
+        expectedSql: ["UPDATE \"Orders\"\nSET \"order_status\" = @p1, \"Total\" = @p2\nWHERE \"Orders\".\"Id\" = @p3"],
         expectedParameters: ["Shipped", 99.99m, 42]
     )];
 
     public static TheoryData<SqlTestCase> UpdateExplicitData => [new SqlTestCase(
-        expectedSql: ["UPDATE \"dbo\".\"Orders\"\nSET \"dbo\".\"Orders\".\"order_status\" = @p1, \"dbo\".\"Orders\".\"Total\" = @p2\nWHERE \"dbo\".\"Orders\".\"Id\" = @p3"],
+        expectedSql: ["UPDATE \"Orders\"\nSET \"Orders\".\"order_status\" = @p1, \"Orders\".\"Total\" = @p2\nWHERE \"Orders\".\"Id\" = @p3"],
         expectedParameters: ["Shipped", 99.99m, 42]
     )];
 
     public static TheoryData<SqlTestCase> UpdateWithIgnoreData => [new SqlTestCase(
-        expectedSql: ["UPDATE \"dbo\".\"Orders\"\nSET \"Id\" = @p1, \"order_status\" = @p2, \"Total\" = @p3\nWHERE \"dbo\".\"Orders\".\"Id\" = @p4"],
+        expectedSql: ["UPDATE \"Orders\"\nSET \"Id\" = @p1, \"order_status\" = @p2, \"Total\" = @p3\nWHERE \"Orders\".\"Id\" = @p4"],
         expectedParameters: [42, "Shipped", 99.99m, 42]
     )];
 
@@ -36,7 +36,7 @@ public partial class SqLiteUpdateTestSuite : IUpdateTestSuite
     )];
 
     public static TheoryData<SqlTestCase> MultiTableUpdateData => [new SqlTestCase(
-        expectedSql: ["UPDATE \"dbo\".\"Products\"\nSET \"Price\" = @p1\nFROM \"Category\" AS \"c1\"\nWHERE \"dbo\".\"Products\".\"CategoryId\" = c1.Id"],
+        expectedSql: ["UPDATE \"Products\"\nSET \"Price\" = @p1\nFROM \"Category\" AS \"c1\"\nWHERE \"Products\".\"CategoryId\" = c1.Id"],
         expectedParameters: [10]
     )];
 
