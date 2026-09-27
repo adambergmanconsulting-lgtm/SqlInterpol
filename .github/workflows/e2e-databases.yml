@@ -53,7 +53,7 @@ jobs:
         run: Start-Sleep -Seconds 15
 
       - name: Run E2E Integration Tests
-        run: dotnet test tests/SqlInterpol.E2E.Tests --filter "Category=${{ matrix.dialect }}"
+        run: dotnet test tests/e2e/SqlInterpol.E2E.Tests --filter "Category=${{ matrix.dialect }}"
 
       - name: Teardown Database
         if: always()
