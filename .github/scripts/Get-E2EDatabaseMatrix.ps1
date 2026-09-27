@@ -4,7 +4,7 @@ param(
     [string]$OutputFile = $env:GITHUB_OUTPUT
 )
 
-$targetClean = $Target?.Trim()
+$targetClean = ($Target ?? '').Trim()
 
 # Resolve dialects: if target is empty, whitespace, or "all", query docker-compose for defined services
 if ([string]::IsNullOrWhiteSpace($targetClean) -or $targetClean -eq 'all') {
