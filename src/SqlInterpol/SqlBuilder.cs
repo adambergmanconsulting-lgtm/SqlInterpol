@@ -35,6 +35,7 @@ public partial class SqlBuilder : ISqlEntityRegistry
         };
 
 
+    /// <summary>
     /// Tracks variable names mapped from caller argument expressions for zero-allocation property routing.
     /// </summary>
     internal Dictionary<string, ISqlEntityBase> ScopedVariables { get; } = new(StringComparer.Ordinal);
@@ -77,6 +78,8 @@ public partial class SqlBuilder : ISqlEntityRegistry
         var renderer = finalOptions.Renderer ?? SqlSegmentRenderer.Instance;
         
         Context = new SqlContext(this, dialect, renderer, finalOptions);
+        
+        SqlMetadataRegistry.ActiveOptions.Value = finalOptions;
     }
 
     private SqlBuilder Append(string? value)
@@ -366,90 +369,101 @@ public partial class SqlBuilder : ISqlEntityRegistry
 
     private SqlQueryResult BuildSegments(IReadOnlyList<SqlSegment> segmentsToBuild, object? arguments)
     {
-        List<SqlSegment>? resolvedSegments = null;
-        IReadOnlyDictionary<string, Func<object, object?>>? getters = null;
+        var previousOptions = SqlMetadataRegistry.ActiveOptions.Value;
+        SqlMetadataRegistry.ActiveOptions.Value = Context.Options;
 
-        if (arguments != null)
+        try
         {
-            getters = SqlMetadataRegistry.GetArgumentGetters(arguments.GetType());
-        }
+            List<SqlSegment>? resolvedSegments = null;
+            IReadOnlyDictionary<string, Func<object, object?>>? getters = null;
 
-        for (int i = 0; i < segmentsToBuild.Count; i++)
-        {
-            var segment = segmentsToBuild[i];
-            
-            if (segment.Type == SqlSegmentType.Raw && segment.Value is SqlArgumentFragment argFragment)
+            if (arguments != null)
             {
-                resolvedSegments ??= [.. segmentsToBuild];
-
-                string argName = argFragment.Name;
-                bool resolved = false;
-
-                if (getters != null && getters.TryGetValue(argName, out var getter))
-                {
-                    object? val = getter(arguments!);
-                    resolvedSegments[i] = new SqlSegment(SqlSegmentType.Unresolved, val);
-                    resolved = true;
-                }
-
-                if (!resolved)
-                {
-                    throw new ArgumentException(
-                        $"The SQL template requires an argument named '{argName}', but it was not provided globally or locally.");
-                }
+                getters = SqlMetadataRegistry.GetArgumentGetters(arguments.GetType());
             }
-        }
 
-        var finalInputSegments = resolvedSegments != null ? (IReadOnlyList<SqlSegment>)resolvedSegments : segmentsToBuild;
-
-        var preprocessor = Context.Options.Preprocessor ?? SqlSegmentPreprocessor.Instance;
-        var pipeline = new SqlPipeline(preprocessor, Context.Options.Rewriters);
-        
-        var compiledSegments = pipeline.Process(finalInputSegments, Context);
-
-        foreach (var segment in compiledSegments)
-        {
-            SqlFeature? requiredFeature = null;
-            string? featureName = null;
-
-            if (segment.Value is ISqlFeatureRequirement req)
+            for (int i = 0; i < segmentsToBuild.Count; i++)
             {
-                requiredFeature = req.RequiredFeature;
-                featureName = req.FeatureName;
-            }
-            else if (segment.Tags != null)
-            {
-                for (int t = 0; t < segment.Tags.Length; t++)
+                var segment = segmentsToBuild[i];
+                
+                if (segment.Type == SqlSegmentType.Raw && segment.Value is SqlArgumentFragment argFragment)
                 {
-                    if (_tagFeatureMap.TryGetValue(segment.Tags[t], out var mapped))
+                    resolvedSegments ??= [.. segmentsToBuild];
+
+                    string argName = argFragment.Name;
+                    bool resolved = false;
+
+                    if (getters != null && getters.TryGetValue(argName, out var getter))
                     {
-                        requiredFeature = mapped.Feature;
-                        featureName = mapped.Name;
-                        break;
+                        object? val = getter(arguments!);
+                        resolvedSegments[i] = new SqlSegment(SqlSegmentType.Unresolved, val);
+                        resolved = true;
+                    }
+
+                    if (!resolved)
+                    {
+                        throw new ArgumentException(
+                            $"The SQL template requires an argument named '{argName}', but it was not provided globally or locally.");
                     }
                 }
             }
 
-            if (requiredFeature.HasValue && !Context.Dialect.SupportedFeatures.Contains(requiredFeature.Value))
-            {
-                throw new SqlDialectException(Context.Dialect.Kind.ToString(), featureName!);
-            }
-        }
+            var finalInputSegments = resolvedSegments != null ? (IReadOnlyList<SqlSegment>)resolvedSegments : segmentsToBuild;
 
-        var vsb = new ValueStringBuilder(stackalloc char[2048]);
+            var preprocessor = Context.Options.Preprocessor ?? SqlSegmentPreprocessor.Instance;
+            var pipeline = new SqlPipeline(preprocessor, Context.Options.Rewriters);
+            
+            var compiledSegments = pipeline.Process(finalInputSegments, Context);
 
-        try
-        {
-            for (int i = 0; i < compiledSegments.Count; i++)
+            foreach (var segment in compiledSegments)
             {
-                CurrentRenderIndex = i;
-                vsb.Append(Renderer.Render(Context, compiledSegments[i], i, compiledSegments) ?? string.Empty);
+                SqlFeature? requiredFeature = null;
+                string? featureName = null;
+
+                if (segment.Value is ISqlFeatureRequirement req)
+                {
+                    requiredFeature = req.RequiredFeature;
+                    featureName = req.FeatureName;
+                }
+                else if (segment.Tags != null)
+                {
+                    for (int t = 0; t < segment.Tags.Length; t++)
+                    {
+                        if (_tagFeatureMap.TryGetValue(segment.Tags[t], out var mapped))
+                        {
+                            requiredFeature = mapped.Feature;
+                            featureName = mapped.Name;
+                            break;
+                        }
+                    }
+                }
+
+                if (requiredFeature.HasValue && !Context.Dialect.SupportedFeatures.Contains(requiredFeature.Value))
+                {
+                    throw new SqlDialectException(Context.Dialect.Kind.ToString(), featureName!);
+                }
             }
-            return new SqlQueryResult(vsb.ToString(), Context.Parameters.AsReadOnly());
+
+            var vsb = new ValueStringBuilder(stackalloc char[2048]);
+
+            try
+            {
+                for (int i = 0; i < compiledSegments.Count; i++)
+                {
+                    CurrentRenderIndex = i;
+                    vsb.Append(Renderer.Render(Context, compiledSegments[i], i, compiledSegments) ?? string.Empty);
+                }
+                return new SqlQueryResult(vsb.ToString(), Context.Parameters.AsReadOnly());
+            }
+            finally
+            {
+                vsb.Dispose();
+            }
         }
         finally
         {
-            vsb.Dispose();
+            // Restore context to prevent cross-thread test pollution
+            SqlMetadataRegistry.ActiveOptions.Value = previousOptions;
         }
     }
 
@@ -483,7 +497,8 @@ public partial class SqlBuilder : ISqlEntityRegistry
 
     internal ISqlEntityBase<T> CreateEntity<T>(string? name = null, string? schema = null, string? alias = null)
     {
-        var meta = SqlMetadataRegistry.GetMetadata<T>();
+        var meta = SqlMetadataRegistry.GetMetadata<T>(Context.Options);
+        
         string physicalName = name ?? meta.Name;
         string? physicalSchema = schema ?? meta.Schema;
 

@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Reflection;
+using SqlInterpol.Configuration;
 
 namespace SqlInterpol.Schema;
 
@@ -9,27 +10,77 @@ namespace SqlInterpol.Schema;
 /// </summary>
 public static class SqlMetadataRegistry
 {
-    private static readonly ConcurrentDictionary<Type, SqlEntityMetadata> _metadataCache = new();
+    private static readonly ConcurrentDictionary<Type, SqlEntityMetadata> _reflectionCache = new();
     private static readonly ConcurrentDictionary<Type, PropertyInfo[]> _dtoPropertyCache = new();
     private static readonly ConcurrentDictionary<Type, IReadOnlyDictionary<string, Func<object, object?>>> _getterCache = new();
 
     /// <summary>
-    /// Returns the cached <see cref="SqlEntityMetadata"/> for the CLR type <typeparamref name="T"/>,
-    /// resolving <see cref="SqlTableAttribute"/> / <see cref="SqlViewAttribute"/> and column mappings
-    /// on the first call and caching the result for all subsequent calls.
+    /// Bridges the active context options to internal pipeline extensions that call parameterless metadata lookups.
+    /// Safely isolates the configuration per execution flow without thread pollution.
     /// </summary>
-    /// <typeparam name="T">The mapped entity or view type.</typeparam>
-    /// <returns>The <see cref="SqlEntityMetadata"/> describing <typeparamref name="T"/>.</returns>
-    public static SqlEntityMetadata GetMetadata<T>() => GetMetadata(typeof(T));
+    public static readonly AsyncLocal<SqlInterpolOptions?> ActiveOptions = new();
 
-    /// <summary>
-    /// Returns the cached <see cref="SqlEntityMetadata"/> for the given <paramref name="type"/>.
-    /// </summary>
-    /// <param name="type">The CLR type to inspect.</param>
-    /// <returns>The <see cref="SqlEntityMetadata"/> describing <paramref name="type"/>.</returns>
-    public static SqlEntityMetadata GetMetadata(Type type)
+    public static SqlEntityMetadata GetMetadata<T>() => GetMetadata(typeof(T), ActiveOptions.Value);
+    
+    public static SqlEntityMetadata GetMetadata(Type type) => GetMetadata(type, ActiveOptions.Value);
+
+    public static SqlEntityMetadata GetMetadata<T>(SqlInterpolOptions? options) => GetMetadata(typeof(T), options);
+
+    public static SqlEntityMetadata GetMetadata(Type type, SqlInterpolOptions? options)
     {
-        return _metadataCache.GetOrAdd(type, t =>
+        if (type == null) throw new ArgumentNullException(nameof(type));
+
+        // 1. Get the highly optimized, shared reflection baseline
+        var baseline = GetCachedReflectionMetadata(type);
+
+        if (options == null || options.Mappings == null || options.Mappings.Count == 0)
+        {
+            return baseline;
+        }
+
+        // 2. Discover mapping cleanly using strong typing
+        var fluentConfig = options.Mappings
+            .OfType<SqlEntityConfiguration>()
+            .FirstOrDefault(m => m.EntityType == type);
+
+        if (fluentConfig == null)
+        {
+            return baseline;
+        }
+
+        // 3. Merge table/schema overrides
+        string finalName = fluentConfig.TableName ?? baseline.Name;
+        string? finalSchema = fluentConfig.SchemaName ?? baseline.Schema;
+        SqlEntityType finalType = fluentConfig.EntityTypeOverride ?? baseline.Type;
+
+        var finalColumns = new Dictionary<PropertyInfo, string>(baseline.Columns);
+        
+        // 4. Map columns, actively stripping CallerArgumentExpression prefixes (e.g. "c.Id" -> "Id")
+        foreach (var mapping in fluentConfig.ColumnMappings)
+        {
+            string propName = mapping.Key;
+            
+            int dotIdx = propName.LastIndexOf('.');
+            if (dotIdx >= 0) 
+            {
+                propName = propName.Substring(dotIdx + 1);
+            }
+
+            var prop = baseline.Columns.Keys.FirstOrDefault(p => 
+                p.Name.Equals(propName, StringComparison.OrdinalIgnoreCase));
+            
+            if (prop != null)
+            {
+                finalColumns[prop] = mapping.Value;
+            }
+        }
+
+        return new SqlEntityMetadata(finalName, finalSchema, finalType, finalColumns);
+    }
+
+    private static SqlEntityMetadata GetCachedReflectionMetadata(Type type)
+    {
+        return _reflectionCache.GetOrAdd(type, t =>
         {
             string name = t.Name;
             string? schema = null;
@@ -54,12 +105,10 @@ public static class SqlMetadataRegistry
             }
 
             var columns = new Dictionary<PropertyInfo, string>();
-
             foreach (var prop in t.GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
                 if (prop.GetCustomAttribute<SqlIgnoreAttribute>() != null) continue;
 
-                // FIX: Ignore complex object types by default to prevent nested object leak into SQL mapping
                 var propType = prop.PropertyType;
                 if (propType.IsClass && propType != typeof(string) && propType != typeof(byte[])) continue;
 
@@ -71,51 +120,30 @@ public static class SqlMetadataRegistry
         });
     }
 
-    /// <summary>
-    /// Returns the cached array of public, non-complex, non-ignored instance properties for
-    /// <paramref name="type"/>, suitable for use in DTO-expansion scenarios.
-    /// </summary>
-    /// <param name="type">The DTO type whose properties to enumerate.</param>
-    /// <returns>A cached <see cref="PropertyInfo"/> array for the eligible properties.</returns>
     public static PropertyInfo[] GetDtoProperties(Type type)
     {
         return _dtoPropertyCache.GetOrAdd(type, t => t.GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Where(p => 
             {
                 if (p.GetCustomAttribute<SqlIgnoreAttribute>() != null) return false;
-                
-                // FIX: Ignore complex object types by default to prevent nested object leak into SQL mapping
                 var propType = p.PropertyType;
                 if (propType.IsClass && propType != typeof(string) && propType != typeof(byte[])) return false;
-
                 return true;
             })
             .ToArray());
     }
 
-    /// <summary>
-    /// Returns a cached, case-insensitive dictionary of compiled property getters for the
-    /// given <paramref name="type"/>. Used by <see cref="SqlBuilder.Build"/> to inject
-    /// template arguments in O(1) time without re-invoking reflection.
-    /// </summary>
-    /// <param name="type">The argument object type to build getters for.</param>
-    /// <returns>
-    /// A dictionary mapping property names (case-insensitive) to compiled getter delegates
-    /// of the form <c>Func&lt;object, object?&gt;</c>.
-    /// </returns>
     public static IReadOnlyDictionary<string, Func<object, object?>> GetArgumentGetters(Type type)
     {
         return _getterCache.GetOrAdd(type, t =>
         {
             var dict = new Dictionary<string, Func<object, object?>>(StringComparer.OrdinalIgnoreCase);
             var props = t.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
             foreach (var prop in props)
             {
                 var localProp = prop;
                 dict[prop.Name] = obj => localProp.GetValue(obj);
             }
-
             return dict;
         });
     }

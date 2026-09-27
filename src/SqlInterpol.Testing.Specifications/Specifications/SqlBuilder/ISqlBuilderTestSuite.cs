@@ -8,4 +8,5 @@ public interface ISqlBuilderTestSuite : ISqlTestSuiteBase
     static abstract TheoryData<SqlTestCase> AppendData { get; }
     static abstract TheoryData<SqlTestCase> AppendLineData { get; }
     static abstract TheoryData<SqlTestCase> RawStringData { get; }
+    static abstract TheoryData<SqlTestCase> FluentMappingData { get; }
 }

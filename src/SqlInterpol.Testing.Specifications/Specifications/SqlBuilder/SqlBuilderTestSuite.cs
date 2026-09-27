@@ -1,6 +1,4 @@
-using System;
 using SqlInterpol.Configuration;
-using SqlInterpol.Schema;
 using SqlInterpol.Testing.Xunit;
 
 namespace SqlInterpol.Testing.Specifications;
@@ -37,7 +35,7 @@ public abstract partial class SqlBuilderTestSuite
                      .Append($"FROM {p}")
                      .Build();
         });
-    
+        
         testCase.Assert();
     }
 
@@ -57,5 +55,33 @@ public abstract partial class SqlBuilderTestSuite
         });
 
         testCase.Assert();
+    }
+
+    [SqlTest(nameof(ISqlBuilderTestSuite.FluentMappingData))]
+    public void SqlBuilder_Renders_Fluent_Mapped_Names(SqlTestCase testCase)
+    {
+        // Arrange
+        var options = new SqlInterpolOptions();
+        options.Metadata
+            .Entity<Order>(out var oConfig)
+                .Table("tbl_orders")
+                .Column(oConfig.Total, c => c.Name("order_total"));
+
+        var db = CreateBuilder(options);
+
+        // Act
+        testCase.Act(() =>
+        {
+            db.Entity<Order>(out var o);
+
+            return db.Append($$"""
+                SELECT {{o.Id}}, {{o.Total}}
+                FROM {{o}}
+                """).Build();
+        });
+
+        // Assert
+        testCase.Assert();
+        db.AssertAotIntercepted();
     }
 }

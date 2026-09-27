@@ -145,6 +145,8 @@ var result = db.Append($$"""
 
 If a specific subquery is used across multiple reports or endpoints, you can extract it into a reusable extension method. By passing the outer scope's `SqlBuilder` and entity reference (`Product p`), the helper method safely correlates the generated `ISqlQuery<Category>` to the parent query without muddying the main logic.
 
+When passing entities across method boundaries like this, you should use the **strongly-typed `.Column(p.Property)` extension method** to reference outer variables:
+
 ```csharp
 public static class QueryHelpers
 {
@@ -158,7 +160,7 @@ public static class QueryHelpers
                 SELECT
                     {{c.Name}}
                 FROM {{c}}
-                WHERE {{c.Id}} = {{p.Column(nameof(p.CategoryId))}} AND {{c.IsActive}} = {{activeStatus}}
+                WHERE {{c.Id}} = {{p.Column(p.CategoryId)}} AND {{c.IsActive}} = {{activeStatus}}
                 """));
     }
 }
@@ -168,15 +170,25 @@ You can then interpolate the result of this function directly into any outer que
 
 ```csharp
 var db = new SqlBuilder();     
-db.Entity<Product>(out var p);
+db.Entity<Product>(out var prod);
 
 var result = db.Append($$"""
     SELECT 
-        {{p.Id}},
+        {{prod.Id}},
         (
-            {{db.BuildCategorySubquery(p, activeStatus: 100)}}
+            {{db.BuildCategorySubquery(prod, activeStatus: 100)}}
         ) AS CategoryName
-    FROM {{p}} AS prod
-    WHERE {{p.Price}} > 101
+    FROM {{prod}}
+    WHERE {{prod.Price}} > 101
     """).Build();
 ```
+
+> ℹ️ **Method Requirements**  
+> To successfully compile a reusable subquery helper, the method **must be `static`**, and the very first parameter must be a `SqlBuilder` (acting as the `this` extension receiver).
+
+> ℹ️ **Why use `p.Column(p.CategoryId)` instead of `{p.CategoryId}`?**  
+> `SqlInterpol` achieves zero-allocation performance by capturing the exact variable text of your interpolated holes using C# 10's `[CallerArgumentExpression]`. 
+> 
+> In the example above, the caller registered the entity as `"prod"` (`out var prod`), but inside the helper method, the parameter is named `"p"`. If you just interpolated `{p.CategoryId}`, the compiler would capture the string literal `"p.CategoryId"`. The parent query builder would then search its local scope for an entity named `"p"`, fail to find it, and likely parameterize the value instead of rendering a column.
+> 
+> By using `p.Column(p.CategoryId)`, you bypass the string-based variable text capture entirely. The `.Column()` extension method executes directly on the entity proxy object, which inherently knows its mapped table alias and schema, guaranteeing a perfectly rendered SQL column (e.g., `"prod"."CategoryId"`) regardless of the local variable name.

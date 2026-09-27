@@ -1,4 +1,3 @@
-using System;
 using SqlInterpol.Configuration;
 using SqlInterpol.Testing.Specifications;
 using SqlInterpol.Testing.Xunit;
@@ -28,6 +27,13 @@ public partial class CustomDbSqlBuilderTestSuite : ISqlBuilderTestSuite
         SELECT
             <<dbo>>.<<Products>>.<<Id>>
         FROM <<dbo>>.<<Products>>
+        """
+    ])];
+
+    public static TheoryData<SqlTestCase> FluentMappingData => [new SqlTestCase([
+        """
+        SELECT <<tbl_orders>>.<<Id>>, <<tbl_orders>>.<<order_total>>
+        FROM <<tbl_orders>>
         """
     ])];
 }

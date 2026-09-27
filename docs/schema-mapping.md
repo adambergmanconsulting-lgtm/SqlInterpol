@@ -1,11 +1,11 @@
 # Schema & Entity Mapping
 
-`SqlInterpol` allows you to bind C# classes and properties directly to database tables, views, and columns using lightweight schema attributes. This provides compile-time safety, automatic column escaping, and context-aware aliasing without requiring verbose fluent mapping definitions.
+`SqlInterpol` allows you to bind C# classes and properties directly to database tables, views, and columns using lightweight schema attributes or a strongly-typed Fluent API. This provides compile-time safety, automatic column escaping, and context-aware aliasing without requiring verbose configuration.
 
 > ℹ️ **Attribute-Free Mapping (Clean POCOs)**  
 > You do **not** need to use schema attributes if you prefer to keep your domain models strictly decoupled from your database schema. By default, `SqlInterpol` uses the exact C# class and property names.
 >
-> If your database tables or columns differ from your C# models, you can bridge the gap directly in your SQL text using standard `AS` aliasing:
+> If your database tables or columns differ from your C# models, you can bridge the gap programmatically using the **Fluent Metadata API** (below), or directly in your SQL text using standard `AS` aliasing:
 > ```csharp
 > // Clean POCO with no SqlInterpol attributes
 > public class Product 
@@ -24,9 +24,65 @@
 
 ---
 
+## Fluent Metadata API
+
+For enterprise architectures that require domain models to remain strictly decoupled from persistence concerns, you can configure tables, views, and column mappings programmatically. The Fluent API leverages C# 10 `[CallerArgumentExpression]` for strongly typed, zero-allocation property mapping and uses a clean, nested builder syntax.
+
+You can define fluent mappings directly on the `SqlInterpolOptions` instance via the `.Metadata` property. This is typically done once during application startup in the global default factory.
+
+```csharp
+using SqlInterpol.Configuration;
+using SqlInterpol.Schema;
+
+SqlInterpolOptions.DefaultFactory = () =>
+{
+    var options = new SqlInterpolOptions();
+
+    options.Metadata
+        // Map a standard table
+        .Entity<Order>(out var o)
+            .Table("tbl_orders")
+            .Schema("sales")
+            .Column(o.Id, "order_id") // Convenient string shorthand
+            .Column(o.TotalAmount, c => c.Name("order_total")) // Nested lambda builder
+            
+        // Pivot to map a database view in the same chain
+        .Entity<OrderSummary>(out var os)
+            .View("v_order_summaries")
+            .Column(os.CustomerName, c => c.Name("cust_name"));
+
+    return options;
+};
+```
+
+### Type-Safe Column Mapping
+
+Notice the `out var o` declaration in `Entity<Order>(out var o)`. The builder injects an uninitialized, strongly typed dummy instance into your local scope. 
+
+This allows you to pass actual property references directly to the `.Column()` method. You get full IntelliSense and refactoring support without relying on magic strings or expensive lambda expression trees (`x => x.Id`).
+
+The API provides two overloads for column mapping:
+1. **String Shorthand:** Ideal for simple physical name mappings (`.Column(u.FirstName, "first_name")`).
+2. **Nested Lambda Builder:** Future-proofs your mapping for advanced configurations (`.Column(u.Status, c => c.Name("status_code"))`).
+
+> ℹ️ **Zero Allocations & Native AOT**  
+> The dummy variable is instantiated via `RuntimeHelpers.GetUninitializedObject` without invoking constructors. The C# compiler captures your property access (`u.FirstName`) as a compile-time string literal via `[CallerArgumentExpression]`. This makes the fluent registry incredibly fast, memory-safe, and 100% Native AOT compatible.
+
+### Metadata Precedence Rules
+
+The internal `SqlMetadataRegistry` evaluates entity metadata dynamically during query construction, merging configurations in a strict priority order:
+
+1. **Fluent Metadata API:** Explicit programmatic configurations always win.
+2. **Data Annotations:** `[SqlTable]`, `[SqlColumn]`, `[SqlIgnore]`.
+3. **Conventions:** Fallback to the exact C# class and property names.
+
+If you partially map an entity (e.g., overriding a single column fluently), the engine intelligently merges your fluent override on top of any existing attributes or default conventions for the remaining unmapped properties.
+
+---
+
 ## Metadata Attributes & Render Modifiers
 
-`SqlInterpol` relies on mapping attributes to resolve physical database schema details and inline render modifiers to dictate how strongly-typed objects format themselves in specific clauses.
+If you prefer declarative mapping, `SqlInterpol` relies on mapping attributes to resolve physical database schema details and inline render modifiers to dictate how strongly-typed objects format themselves in specific clauses.
 
 ### Entity Attributes
 
@@ -41,7 +97,7 @@ Apply these directly to your C# models to govern how the builder resolves physic
 | `[SqlIgnore]` | Property | Instructs the mapper and expansion macros to completely ignore the property. | `[SqlIgnore]` |
 
 > ℹ️ **Default Conventions**  
-> If no attributes are specified, `SqlInterpol` defaults to using the un-namespaced class name as the table name, and exact property names as column names.
+> If no attributes or fluent mappings are specified, `SqlInterpol` defaults to using the un-namespaced class name as the table name, and exact property names as column names.
 
 ### Inline Render Modifiers
 
@@ -248,7 +304,7 @@ var query = db.Append($"""
 
 ### 5. Class & Property Name Resolution (`AS {p}` / `AS {p.X}`)
 
-When using `[SqlTable]` or `[SqlColumn]` attributes to map a class to a differently named database object, you often need to alias it back to the original C# class or property name so materializers (like Dapper) can map the result set correctly.
+When using `[SqlTable]` or `[SqlColumn]` attributes (or Fluent mappings) to map a class to a differently named database object, you often need to alias it back to the original C# class or property name so materializers (like Dapper) can map the result set correctly.
 
 If you interpolate an entity or property **after** an `AS` keyword, `SqlInterpol` intelligently context-switches and renders the **C# member name** instead of the mapped database name.
 
@@ -268,13 +324,19 @@ var query = db.Append($"""
     """).Build();
 ```
 
-*   **SQL Server Output:**
+*   **PostgreSQL:**
     ```sql
-    SELECT [p].[product_name] AS [Name] 
+    SELECT "Product"."product_name" AS "Name" 
+    FROM "db_products" AS "Product"
+    ```
+
+*   **SQL Server:**
+    ```sql
+    SELECT [Product].[product_name] AS [Name] 
     FROM [db_products] AS [Product]
     ```
 
-Notice how the exact same interpolation tokens (`{p.Name}` and `{p}`) output the mapped database names (`[product_name]` and `[db_products]`) before the `AS`, and the exact C# type/property names (`[Name]` and `[Product]`) after it.
+Notice how the exact same interpolation tokens (`{p.Name}` and `{p}`) output the mapped database names (`product_name` and `db_products`) before the `AS`, and the exact C# type/property names (`Name` and `Product`) after it.
 
 ---
 
@@ -300,7 +362,7 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
 
 ## Runtime Name Overrides
 
-You can override the physical table name and schema for a specific query call without touching the class attributes. This is useful for querying archive tables, partitioned tables, or temp tables that share the same column shape as a mapped model.
+You can override the physical table name and schema for a specific query call without touching the class attributes or fluent configuration. This is useful for querying archive tables, partitioned tables, or temp tables that share the same column shape as a mapped model.
 
 ```csharp
 // Queries "history"."products_archive" but column references use the Product attribute mapping
@@ -353,7 +415,7 @@ db.AppendLine($"ORDER BY {p.OrderBy("Price", SqlOrderDirection.Descending)}");
 
 ## `[SqlQueryAttribute]` — Subquery Helper Methods
 
-Apply `[SqlQuery]` to a `static` method that returns `ISqlQuery<T>`. This signals the Roslyn analyzer that the method builds a correlated subquery and should be held to the same safety constraints as inline query construction.
+Apply `[SqlQuery]` to a `static` method that returns `ISqlQuery<T>`. This signals the Roslyn analyzer that the method builds a correlated subquery and should be held to the same safety constraints (like strict parameterization) as standard inline query construction.
 
 ```csharp
 [SqlQuery]
@@ -364,10 +426,9 @@ public static ISqlQuery<Category> GetCategorySubquery(this SqlBuilder db, Produc
         .Query(c, () => db.Append($"""
             SELECT {c.Name}
             FROM {c}
-            WHERE {c.Id} = {p.Column(nameof(p.CategoryId))} AND {c.IsActive} = {activeStatus}
+            WHERE {c.Id} = {p.Column(p.CategoryId)} AND {c.IsActive} = {activeStatus}
             """));
 }
 ```
 
-> ℹ️ **Method Requirements**  
-> The method must be `static`. The first parameter must be `SqlBuilder` (the extension receiver). See [Dynamic Queries](dynamic-queries.md) for complete usage examples.
+For complete method requirements, rules on parameter referencing, and advanced usage examples, see the **[Composable Subqueries in Dynamic Queries](dynamic-queries.md#composable-subqueries)** documentation.

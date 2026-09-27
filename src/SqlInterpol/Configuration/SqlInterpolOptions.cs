@@ -1,5 +1,6 @@
 using SqlInterpol.Dialects;
 using SqlInterpol.Pipeline;
+using SqlInterpol.Schema;
 
 namespace SqlInterpol.Configuration;
 
@@ -14,6 +15,8 @@ namespace SqlInterpol.Configuration;
 /// </remarks>
 public record SqlInterpolOptions
 {
+    private SqlMetadataBuilder? _metadata;
+
     /// <summary>
     /// A factory method used to generate the default options for every newly created SqlBuilder.
     /// Configure this once at application startup.
@@ -113,6 +116,11 @@ public record SqlInterpolOptions
     public ISqlSegmentRenderer? Renderer { get; init; }
 
     /// <summary>
+    /// Gets the fluent builder for configuring database schema metadata.
+    /// </summary>
+    public SqlMetadataBuilder Metadata => _metadata ??= new SqlMetadataBuilder(this);
+
+    /// <summary>
     /// A registry of custom keywords and their associated lexical tags.
     /// Extension packages can add keywords here so the Lexer automatically identifies them!
     /// </summary>
@@ -204,18 +212,4 @@ public readonly struct SqlInterpolOptionsValue(SqlInterpolOptions opt)
     public int QueryParametersMaxCount => opt.QueryParametersMaxCount ?? 999;
     public bool EntityAutoAliasing => opt.EntityAutoAliasing ?? false;
     public bool CrossDialectSqlTranspilation => opt.CrossDialectSqlTranspilation ?? true;
-}
-
-
-public interface ISqlMapping
-{
-    string TableName { get; }
-    string SchemaName { get; }
-    IEnumerable<ISqlColumnMapping> Columns { get; }
-}
-
-public interface ISqlColumnMapping
-{
-    string PropertyName { get; }
-    string ColumnName { get; }
 }
