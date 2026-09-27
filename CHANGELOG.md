@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/jimmieulenius/SqlInterpol/compare/v1.2.0...v1.3.0) (2026-09-27)
+
+
+### Features
+
+* Enhance SQL entity mapping with fluent API and caller argument expressions ([c8590a0](https://github.com/jimmieulenius/SqlInterpol/commit/c8590a02a7d2ef4b185caf314abdd038a08dcde0))
+
 # [1.2.0](https://github.com/jimmieulenius/SqlInterpol/compare/v1.1.0...v1.2.0) (2026-09-13)
 
 
