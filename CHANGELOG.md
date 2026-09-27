@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/jimmieulenius/SqlInterpol/compare/v1.3.0...v1.3.1) (2026-09-27)
+
+
+### Bug Fixes
+
+* Correct null handling for Target parameter in Get-E2EDatabaseMatrix.ps1 ([1ac7d3c](https://github.com/jimmieulenius/SqlInterpol/commit/1ac7d3ca3f74c93c58fdf327c2b8ecb2f21f32f9))
+
 # [1.3.0](https://github.com/jimmieulenius/SqlInterpol/compare/v1.2.0...v1.3.0) (2026-09-27)
 
 
