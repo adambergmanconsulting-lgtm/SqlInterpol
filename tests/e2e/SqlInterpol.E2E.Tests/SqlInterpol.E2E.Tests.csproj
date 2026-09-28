@@ -7,6 +7,12 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
+  <!-- Allows you to see the generated E2E tests on disk -->
+  <PropertyGroup>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>obj/Generated</CompilerGeneratedFilesOutputPath>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
     <PackageReference Include="Dapper" Version="2.1.89" />
@@ -32,6 +38,15 @@
     <ProjectReference Include="..\..\..\src\SqlInterpol\SqlInterpol.csproj" />
     <ProjectReference Include="..\..\..\src\SqlInterpol.Testing.Specifications\SqlInterpol.Testing.Specifications.csproj" />
     <ProjectReference Include="..\..\..\src\SqlInterpol.Testing.Xunit\SqlInterpol.Testing.Xunit.csproj" />
+    
+    <!-- 1. Pass the specification files to the generator -->
+    <AdditionalFiles Include="..\..\..\src\SqlInterpol.Testing.Specifications\**\*.cs" Exclude="..\..\..\src\SqlInterpol.Testing.Specifications\obj\**;..\..\..\src\SqlInterpol.Testing.Specifications\bin\**" />
+    
+    <!-- 2. Attach the Test Generator -->
+    <ProjectReference Include="..\..\..\src\SqlInterpol.Testing.Generators\SqlInterpol.Testing.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    
+    <!-- 3. Attach the Core Generator (in case models rely on it) -->
+    <ProjectReference Include="..\..\..\src\SqlInterpol.Generators\SqlInterpol.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>
