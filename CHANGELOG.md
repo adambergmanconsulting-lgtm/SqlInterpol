@@ -1,3 +1,10 @@
+## [1.3.4](https://github.com/jimmieulenius/SqlInterpol/compare/v1.3.3...v1.3.4) (2026-09-28)
+
+
+### Bug Fixes
+
+* Refactor PostgreSqlE2ETests and add project reference for Xunit testing ([39e9dff](https://github.com/jimmieulenius/SqlInterpol/commit/39e9dff07acf2a806159d390d4604a68a7538227))
+
 ## [1.3.3](https://github.com/jimmieulenius/SqlInterpol/compare/v1.3.2...v1.3.3) (2026-09-28)
 
 
