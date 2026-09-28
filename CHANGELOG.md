@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/jimmieulenius/SqlInterpol/compare/v1.3.4...v1.4.0) (2026-09-28)
+
+
+### Features
+
+* Add initial SQL script to create schema "MySchema" ([f87a704](https://github.com/jimmieulenius/SqlInterpol/commit/f87a70465736bd619d0955fe8906fd816897ced9))
+
 ## [1.3.4](https://github.com/jimmieulenius/SqlInterpol/compare/v1.3.3...v1.3.4) (2026-09-28)
 
 
