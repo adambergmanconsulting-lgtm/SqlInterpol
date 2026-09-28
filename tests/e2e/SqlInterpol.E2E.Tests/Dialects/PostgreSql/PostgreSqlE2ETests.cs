@@ -32,11 +32,4 @@ public class PostgreSqlFromSpecs : FromTestSuite, IClassFixture<PostgreSqlFixtur
 
     public override SqlBuilder CreateBuilder(SqlInterpolOptions? options = null) 
         => _fixture.CreateBuilder(options);
-
-    // 2. SANITY CHECK: If xUnit works at all, it will find at least this 1 test!
-    [Fact]
-    public void Discovery_SanityCheck()
-    {
-        Assert.True(true, "xUnit is successfully discovering tests in this project!");
-    }
 }
