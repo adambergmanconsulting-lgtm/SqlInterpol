@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/jimmieulenius/SqlInterpol/compare/v1.3.1...v1.3.2) (2026-09-27)
+
+
+### Bug Fixes
+
+* Correct path for E2E integration tests in workflow configuration ([b50d6c1](https://github.com/jimmieulenius/SqlInterpol/commit/b50d6c130a7ad4526ce4ffd4c7eb52007b2440b5))
+
 ## [1.3.1](https://github.com/jimmieulenius/SqlInterpol/compare/v1.3.0...v1.3.1) (2026-09-27)
 
 
