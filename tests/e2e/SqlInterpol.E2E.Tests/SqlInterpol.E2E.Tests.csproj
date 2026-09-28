@@ -31,6 +31,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\SqlInterpol\SqlInterpol.csproj" />
     <ProjectReference Include="..\..\..\src\SqlInterpol.Testing.Specifications\SqlInterpol.Testing.Specifications.csproj" />
+    <ProjectReference Include="..\..\..\src\SqlInterpol.Testing.Xunit\SqlInterpol.Testing.Xunit.csproj" />
   </ItemGroup>
 
   <ItemGroup>
