@@ -7,9 +7,9 @@ using Xunit;
 
 namespace SqlInterpol.E2E.Tests.Dialects.PostgreSql;
 
-[Trait("Category", "PostgreSQL")]
 public class PostgreSqlE2ETests
 {
+    [Trait("Category", "PostgreSQL")]
     public class FromSpecs(Fixture fixture) : E2EFromTestSuite<Fixture>(fixture);
     
     // Add future suites easily:
