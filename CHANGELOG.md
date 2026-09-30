@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/jimmieulenius/SqlInterpol/compare/v1.5.0...v1.6.0) (2026-09-30)
+
+
+### Features
+
+* Enhance PostgreSQL test suite with interface checks and refactor project references ([1ded870](https://github.com/jimmieulenius/SqlInterpol/commit/1ded870fc6df61e9238c9dd7b16acecb3f0b2c6f))
+
 # [1.5.0](https://github.com/jimmieulenius/SqlInterpol/compare/v1.4.0...v1.5.0) (2026-09-28)
 
 
