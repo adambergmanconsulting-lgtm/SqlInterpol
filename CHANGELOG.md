@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/jimmieulenius/SqlInterpol/compare/v1.6.0...v1.7.0) (2026-09-30)
+
+
+### Features
+
+* Enhance E2E testing framework with new database state validation and refactor test cases ([ffd8434](https://github.com/jimmieulenius/SqlInterpol/commit/ffd84342928ae7c0b62950be826906fd7cfda950))
+
 # [1.6.0](https://github.com/jimmieulenius/SqlInterpol/compare/v1.5.0...v1.6.0) (2026-09-30)
 
 
