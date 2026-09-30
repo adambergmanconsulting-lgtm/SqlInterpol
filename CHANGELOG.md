@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/jimmieulenius/SqlInterpol/compare/v1.4.0...v1.5.0) (2026-09-28)
+
+
+### Features
+
+* Add support for generated E2E tests and attach necessary project references ([03a3114](https://github.com/jimmieulenius/SqlInterpol/commit/03a31149dcd5b1cef090aacd05e7fb64c6dcc7cf))
+
 # [1.4.0](https://github.com/jimmieulenius/SqlInterpol/compare/v1.3.4...v1.4.0) (2026-09-28)
 
 
