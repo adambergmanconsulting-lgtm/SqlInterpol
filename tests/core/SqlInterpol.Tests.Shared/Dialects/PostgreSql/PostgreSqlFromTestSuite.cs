@@ -7,7 +7,7 @@ namespace SqlInterpol.Tests.Dialects.PostgreSql;
 
 public partial class PostgreSqlFromTestSuite : IFromTestSuite
 {
-    public SqlBuilder CreateBuilder(SqlInterpolOptions? options = null) => SqlBuilder.PostgreSql(options);
+    public virtual SqlBuilder CreateBuilder(SqlInterpolOptions? options = null) => SqlBuilder.PostgreSql(options);
 
     public static TheoryData<SqlTestCase> From_SingleEntityData => [new SqlTestCase([
         """

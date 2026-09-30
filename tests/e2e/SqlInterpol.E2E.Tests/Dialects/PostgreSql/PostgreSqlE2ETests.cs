@@ -3,7 +3,7 @@ using Npgsql;
 using SqlInterpol.Configuration;
 using SqlInterpol.Dialects;
 using SqlInterpol.E2E.Tests.Framework;
-using SqlInterpol.Testing.Specifications;
+using SqlInterpol.Tests.Dialects.PostgreSql;
 using Xunit;
 
 namespace SqlInterpol.E2E.Tests.Dialects.PostgreSql;
@@ -19,9 +19,8 @@ public class PostgreSqlFixture : E2EDatabaseTestSuiteBase
         SqlBuilder.PostgreSql(options);
 }
 
-// 1. Inherit directly from FromTestSuite and implement IClassFixture explicitly
 [Trait("Category", "PostgreSQL")]
-public class PostgreSqlFromSpecs : FromTestSuite, IClassFixture<PostgreSqlFixture>
+public partial class PostgreSqlFromSpecs : PostgreSqlFromTestSuite, IClassFixture<PostgreSqlFixture>
 {
     private readonly PostgreSqlFixture _fixture;
 
@@ -30,6 +29,7 @@ public class PostgreSqlFromSpecs : FromTestSuite, IClassFixture<PostgreSqlFixtur
         _fixture = fixture;
     }
 
+    // Override the unit test builder to use the E2E fixture's builder logic
     public override SqlBuilder CreateBuilder(SqlInterpolOptions? options = null) 
         => _fixture.CreateBuilder(options);
 }

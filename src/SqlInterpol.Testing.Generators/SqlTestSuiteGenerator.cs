@@ -142,6 +142,12 @@ public sealed class SqlTestSuiteGenerator : IIncrementalGenerator
             if (iface.Name == GeneratorConstants.SqlTestSuiteBaseInterfaceName) 
                 continue;
 
+            // Prevent duplicate generation: If the base class already implements this interface, 
+            // standard OOP inheritance handles it. Skip generating a second copy here!
+            bool baseImplementsIt = target.ClassSymbol.BaseType?.AllInterfaces.Any(b => b.Name == iface.Name) == true;
+            if (baseImplementsIt) 
+                continue;
+
             bool inheritsBase = iface.AllInterfaces.Any(bi => bi.Name == GeneratorConstants.SqlTestSuiteBaseInterfaceName);
             
             bool mappedInTemplate = false;
