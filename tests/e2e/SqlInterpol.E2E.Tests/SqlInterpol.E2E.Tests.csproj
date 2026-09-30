@@ -7,21 +7,30 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <IsTestProject Condition="'$(RUN_E2E)' != 'true'">false</IsTestProject>
+  </PropertyGroup>
+
+  <!-- Only include the test execution engine if we are running E2E -->
+  <ItemGroup Condition="'$(RUN_E2E)' == 'true'">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="4.0.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
     <PackageReference Include="Dapper" Version="2.1.89" />
     <PackageReference Include="FirebirdSql.Data.FirebirdClient" Version="10.3.4" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.0" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.12" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
     <PackageReference Include="MySqlConnector" Version="2.6.2" />
     <PackageReference Include="Npgsql" Version="10.0.3" />
     <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.301" />
     <PackageReference Include="xunit" Version="2.9.3" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="4.0.0">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
+
   </ItemGroup>
 
   <ItemGroup>

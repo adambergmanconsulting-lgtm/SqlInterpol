@@ -53,6 +53,9 @@ jobs:
         run: Start-Sleep -Seconds 15
 
       - name: Run E2E Integration Tests
+        # Inject the environment variable here so the .csproj recognizes it as a test project
+        env:
+          RUN_E2E: 'true'
         run: dotnet test tests/e2e/SqlInterpol.E2E.Tests --filter "Category=${{ matrix.dialect }}"
 
       - name: Teardown Database

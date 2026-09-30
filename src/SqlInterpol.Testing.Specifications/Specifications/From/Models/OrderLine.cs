@@ -2,16 +2,5 @@ namespace SqlInterpol.Testing.Specifications;
 
 public abstract partial class FromTestSuite
 {
-    public class OrderLine
-    {
-        public int OrderId { get; set; }
-
-        public int ProductItemNumber { get; set; }
-
-        public int Quantity { get; set; }
-
-        public decimal Price { get; set; }
-
-        public int ProductId { get; set; }
-    }
+    public record OrderLine(int OrderId, int ProductItemNumber, int Quantity, decimal Price, int ProductId);
 }

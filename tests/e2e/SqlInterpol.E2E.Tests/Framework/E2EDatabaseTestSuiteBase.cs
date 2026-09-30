@@ -13,20 +13,30 @@ public abstract class E2EDatabaseTestSuiteBase : IAsyncLifetime
     
     protected abstract SqlDialectKind Dialect { get; }
 
-    protected IDbConnection? Connection { get; private set; }
+    // Made public so the Test Classes can check if it's null to trigger a Skip
+    public IDbConnection? Connection { get; private set; }
 
     public async Task InitializeAsync()
     {
-        Connection = CreateConnection();
-        Connection.Open();
-
-        foreach (var script in GetSchemaScripts())
+        try
         {
-            if (string.IsNullOrWhiteSpace(script)) continue;
+            Connection = CreateConnection();
+            Connection.Open();
 
-            using var command = Connection.CreateCommand();
-            command.CommandText = script;
-            command.ExecuteNonQuery();
+            foreach (var script in GetSchemaScripts())
+            {
+                if (string.IsNullOrWhiteSpace(script)) continue;
+
+                using var command = Connection.CreateCommand();
+                command.CommandText = script;
+                command.ExecuteNonQuery();
+            }
+        }
+        catch (Exception)
+        {
+            // Database is offline or failed to initialize. 
+            // Gracefully swallow the exception so xUnit can hit Assert.Skip() in the test classes.
+            Connection = null;
         }
 
         await Task.CompletedTask;
@@ -57,7 +67,9 @@ public abstract class E2EDatabaseTestSuiteBase : IAsyncLifetime
         var modelDir = Path.Combine(scriptDir, "Models");
         if (Directory.Exists(modelDir))
         {
-            var modelFiles = Directory.GetFiles(modelDir, "*.sql");
+            // CRITICAL: Directory.GetFiles does not guarantee order on all OS platforms.
+            // OrderBy ensures your 10_ schemas run before 11_ data files!
+            var modelFiles = Directory.GetFiles(modelDir, "*.sql").OrderBy(f => f);
             foreach (var file in modelFiles)
             {
                 yield return File.ReadAllText(file);

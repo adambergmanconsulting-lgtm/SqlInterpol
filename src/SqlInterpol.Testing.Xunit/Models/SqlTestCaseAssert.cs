@@ -70,4 +70,36 @@ public sealed class SqlTestCaseAssert
             Assert.Equal(_testCase.ExpectedExceptionMessage, actualException.Message);
         }
     }
+
+    /// <summary>
+    /// Verifies the structural shape, row count, and exact data values of the database response, 
+    /// if E2E execution occurred.
+    /// </summary>
+    public void Data()
+    {
+        // Only run these assertions if we are running in an E2E context with an active live database
+        if (SqlTestCase.CurrentConnection.Value == null || _testCase.ExpectedData == null) 
+            return;
+
+        // Verify the schema structure (column names and order)
+        if (_testCase.ExpectedData.Columns != null)
+        {
+            Assert.NotNull(_testCase.ActualColumns);
+            Assert.Equal(_testCase.ExpectedData.Columns, _testCase.ActualColumns);
+        }
+
+        // Verify the number of rows returned/affected
+        if (_testCase.ExpectedData.RowCount.HasValue)
+        {
+            Assert.NotNull(_testCase.ActualRowCount);
+            Assert.Equal(_testCase.ExpectedData.RowCount.Value, _testCase.ActualRowCount.Value);
+        }
+
+        // Verify the exact data values via JSON structural comparison
+        if (_testCase.ExpectedData.DataJson != null)
+        {
+            Assert.NotNull(_testCase.ActualDataJson);
+            Assert.Equal(_testCase.ExpectedData.DataJson, _testCase.ActualDataJson);
+        }
+    }
 }
