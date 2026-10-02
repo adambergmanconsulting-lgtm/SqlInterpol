@@ -5,10 +5,11 @@ using SqlInterpol.Segments;
 using SqlInterpol.Testing.Xunit.Dialects;
 using Xunit;
 
-namespace SqlInterpol.Tests;
+namespace SqlInterpol.Tests.Pipeline;
 
 /// <summary>
-/// Focused seam tests for <see cref="SqlFeatureGate"/> after extract from <see cref="SqlBuilder"/>.
+/// White-box seam tests for <see cref="SqlFeatureGate"/> (pipeline helper).
+/// Public FOR UPDATE unsupported behavior remains owned by <c>LockTestSuite</c> / SqLite dialect data.
 /// </summary>
 public class SqlFeatureGateTests
 {
@@ -69,25 +70,5 @@ public class SqlFeatureGateTests
             () => SqlFeatureGate.EnsureSupported(new EmptyFeaturesDialect(), segments));
 
         Assert.Contains("FOR SHARE", ex.Message);
-    }
-
-    [Fact]
-    public void Build_SqLite_ForUpdate_still_fails_via_public_Build()
-    {
-        var db = SqlBuilder.SqLite();
-        db.Entity<ProductStub>(out var p);
-
-        var ex = Assert.Throws<SqlDialectException>(() =>
-            db.Append($$"""
-                SELECT {{p.Id}}
-                FROM {{p}} FOR UPDATE
-                """).Build());
-
-        Assert.Contains("FOR UPDATE", ex.Message);
-    }
-
-    private sealed class ProductStub
-    {
-        public int Id { get; set; }
     }
 }
