@@ -5,7 +5,7 @@
 ## Fast path (read first)
 
 - **Owns:** AOT interceptors, `LastBuildWasAotIntercepted`, hot-path allocation notes.
-- **UPSERT:** handwritten `ON CONFLICT` / `ON DUPLICATE` / `MERGE` shapes are **AOT-intercepted**; CrossDialect rewrite (e.g. SqlServer → `MERGE`) still runs in shared `Build()` rewriters — not compile-time transpile in the emitter. Proof: `AotUpsertCrossDialectCharacterizationTests` (`AssertAotIntercepted`).
+- **UPSERT:** handwritten `ON CONFLICT` / `ON DUPLICATE` / `MERGE` shapes are **AOT-intercepted**; CrossDialect rewrite still runs at `Build()`. Dialect SQL: `UpsertTestSuite`. Interceptor call-site proof: `AotUpsertCallSiteTests` (Shared linked into Aot host — Spec Append is not interceptor-hosted).
 - **Templates:** [templates-caching.md](templates-caching.md) (also not interceptor-targeted).
 - **Generators:** `src/SqlInterpol.Generators`.
 

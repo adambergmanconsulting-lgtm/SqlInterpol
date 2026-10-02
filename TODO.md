@@ -9,7 +9,7 @@ Operational Rank 5 hygiene: keep this list honest against shipped code. Prefer C
 ## Done / retired
 
 * Add AppendUpsert — shipped (`SqlBuilderExtensions.AppendUpsert` + `IUpsertTestSuite` / `UpsertTemplateData`)
-* Unit tests for templates and Append… methods — template suites exist; `TemplateAppendLineEquivalenceTests` covers `AppendLine(ISqlTemplate)`
+* Unit tests for templates and Append… methods — template suites exist; `Template_AppendLine_Select` covers `AppendLine(ISqlTemplate)` via Spec
 * EntityAutoAliasing = true by default — rejected (violates WYSIWYG)
-* Characterize AOT×CrossDialect handwritten UPSERT — shipped as tests + honest docs
-* AOT-intercept handwritten UPSERT/ON CONFLICT — shipped 2026-10-02 (structural GetSegment emit; CrossDialect rewrite remains at `Build()`; `AssertAotIntercepted` on `AotUpsertCrossDialectCharacterizationTests`) ([performance-aot.md](docs/performance-aot.md))
+* Characterize AOT×CrossDialect handwritten UPSERT — retired into Spec + AOT call-site
+* AOT-intercept handwritten UPSERT/ON CONFLICT — shipped 2026-10-02 (structural GetSegment emit; CrossDialect at `Build()`; `UpsertTestSuite` + `AotUpsertCallSiteTests`) ([performance-aot.md](docs/performance-aot.md))
