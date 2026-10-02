@@ -6,7 +6,7 @@ When you build a query, the `SqlPipeline` orchestrates preprocessing and segment
 
 - **Owns:** segments vs fragments, custom `ISqlFragment`, preprocessor/rewriter extension points.
 - **Custom dialect packaging:** [extensibility-dialects.md](extensibility-dialects.md).
-- **Code:** `src/SqlInterpol/Pipeline/` (preprocess, rewrite, render orchestration).
+- **Feature gate:** `Pipeline/SqlFeatureGate.cs` (dialect feature checks during Build).
 
 ## Segments vs. Fragments
 

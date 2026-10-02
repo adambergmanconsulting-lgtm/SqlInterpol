@@ -26,15 +26,25 @@ On 2026-10-02 this repo received a Railkit kit copy. The question: do shared Fas
 
 **Upstream PR:** rails/docs/checks only — https://github.com/jimmieulenius/SqlInterpol/pull/4  
 
-*(Local dogfood briefly tried a `SqlFeatureGate` extract and AppendLine template tests; those are **not** in the upstream PR. Preserved on branch `product/sql-feature-gate` if wanted later as separate product work.)*
+**Act 3 — Stress-test rails with product work** (branch `product/stress-feature-gate`): situate via layering + core-query Fast paths → extract `SqlFeatureGate` → focused Rank 2 tests. Rails held (owner docs opened first; proof in same change).
 
 ## Chronology
 
 | When | Block | What happened | Evidence |
 |------|-------|---------------|----------|
-| 2026-10-02 | Install + specialize | Kit + library CANONICAL + checks | adopt commit |
-| 2026-10-02 | Fast paths + journal | Skim paths on product docs; TODO hygiene | adopt commit |
+| 2026-10-02 | Install + specialize | Kit + library CANONICAL + checks | adopt / PR #4 |
+| 2026-10-02 | Fast paths + journal | Skim paths on product docs; TODO hygiene | adopt / PR #4 |
 | 2026-10-02 | Upstream draft PR | Public fork; rails-only RFC | https://github.com/jimmieulenius/SqlInterpol/pull/4 |
+| 2026-10-02 | S4 Stress-test | FeatureGate extract + `SqlFeatureGateTests` (4 passed net8/net10); SqlBuilder 512→468 | branch `product/stress-feature-gate` |
+
+### 2026-10-02 — S4 Stress-test rails (product)
+
+- **Intent / CANONICAL owner opened:** [application-layering.md](../engineering/architecture/application-layering.md), [core-query-building.md](../core-query-building.md), [pipeline-rewriters.md](../pipeline-rewriters.md)
+- **Change:** `Pipeline/SqlFeatureGate.cs`; `SqlBuilder` calls gate; InternalsVisibleTo for JIT/AOT test assemblies; `SqlFeatureGateTests`
+- **Proof (Rank 2):** `dotnet test` filter `SqlFeatureGateTests` — Passed 4 on net8.0 and net10.0
+- **Ratchet:** SqlBuilder 468 lines (still over warn; overWarn count unchanged at 3)
+- **Rails stress result:** situating stayed on Fast paths; no folder-browse plan; change + proof same turn
+- **Token note:** ledger S4
 
 ### Entry template
 
@@ -62,6 +72,7 @@ On 2026-10-02 this repo received a Railkit kit copy. The question: do shared Fas
 | Id | Date | Work block | Method | Total | Notes |
 |----|------|------------|--------|-------|-------|
 | S0–S3 | 2026-10-02 | Orient + adopt + Fast paths | C / pending A | — | Paste Cursor usage at campaign end |
+| S4 | 2026-10-02 | Stress-test FeatureGate product change | C / pending A | — | Situating: layering + core-query + pipeline Fast paths |
 
 **Campaign total:** _TBD from Cursor usage UI_
 
