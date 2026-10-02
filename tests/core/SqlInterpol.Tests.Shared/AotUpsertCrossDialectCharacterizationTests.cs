@@ -6,8 +6,8 @@ using Xunit;
 namespace SqlInterpol.Tests;
 
 /// <summary>
-/// Characterization: handwritten UPSERT is rewrite-correct under CrossDialect at runtime,
-/// but the AOT interceptor intentionally falls back to JIT (SQLIG10) — see performance-aot.md.
+/// Characterization: handwritten UPSERT is AOT-intercepted while CrossDialect rewrite
+/// still runs in the shared Build() pipeline (not compile-time MERGE in the emitter).
 /// </summary>
 public class AotUpsertCrossDialectCharacterizationTests
 {
@@ -22,7 +22,7 @@ public class AotUpsertCrossDialectCharacterizationTests
     }
 
     [Fact]
-    public void Handwritten_OnConflict_SqlServer_transpiles_to_MERGE_via_JIT()
+    public void Handwritten_OnConflict_SqlServer_transpiles_to_MERGE_via_Aot()
     {
         var options = new SqlInterpolOptions { CrossDialectSqlTranspilation = true };
         var db = SqlBuilder.SqlServer(options);
@@ -31,20 +31,18 @@ public class AotUpsertCrossDialectCharacterizationTests
 
         db.Entity<Product>(out var p);
 
-#pragma warning disable SQLIG10
         var result = db.Append($$"""
             INSERT INTO {{p}} {{newProduct}}
             ON CONFLICT {{p.Id}}
             DO UPDATE SET {{updateProduct}}
             """).Build();
-#pragma warning restore SQLIG10
 
         Assert.Contains("MERGE INTO", result.Sql, StringComparison.OrdinalIgnoreCase);
-        db.AssertJitFallback();
+        db.AssertAotIntercepted();
     }
 
     [Fact]
-    public void Handwritten_OnConflict_PostgreSql_stays_OnConflict_via_JIT()
+    public void Handwritten_OnConflict_PostgreSql_stays_OnConflict_via_Aot()
     {
         var options = new SqlInterpolOptions { CrossDialectSqlTranspilation = true };
         var db = SqlBuilder.PostgreSql(options);
@@ -53,16 +51,14 @@ public class AotUpsertCrossDialectCharacterizationTests
 
         db.Entity<Product>(out var p);
 
-#pragma warning disable SQLIG10
         var result = db.Append($$"""
             INSERT INTO {{p}} {{newProduct}}
             ON CONFLICT {{p.Id}}
             DO UPDATE SET {{updateProduct}}
             """).Build();
-#pragma warning restore SQLIG10
 
         Assert.Contains("ON CONFLICT", result.Sql, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("MERGE INTO", result.Sql, StringComparison.OrdinalIgnoreCase);
-        db.AssertJitFallback();
+        db.AssertAotIntercepted();
     }
 }

@@ -5,7 +5,7 @@
 ## Fast path (read first)
 
 - **Owns:** AOT interceptors, `LastBuildWasAotIntercepted`, hot-path allocation notes.
-- **Known gap:** handwritten `UPSERT` / `ON CONFLICT` / `MERGE` shapes force **JIT fallback** (`SQLIG10`) — CrossDialect rewrite still runs at `Build()`, not in the AOT emitter. Characterization: `AotUpsertCrossDialectCharacterizationTests`.
+- **UPSERT:** handwritten `ON CONFLICT` / `ON DUPLICATE` / `MERGE` shapes are **AOT-intercepted**; CrossDialect rewrite (e.g. SqlServer → `MERGE`) still runs in shared `Build()` rewriters — not compile-time transpile in the emitter. Proof: `AotUpsertCrossDialectCharacterizationTests` (`AssertAotIntercepted`).
 - **Templates:** [templates-caching.md](templates-caching.md) (also not interceptor-targeted).
 - **Generators:** `src/SqlInterpol.Generators`.
 
@@ -16,18 +16,16 @@
 For applications running on .NET 8+, `SqlInterpol` opts into Roslyn interceptors for many `Append` / `AppendLine` shapes. Intercepted queries skip runtime interpolated-string parsing; **dialect structural transpile for complex DML may still run in the shared `Build()` pipeline**.
 
 *   **Zero-Allocation Handlers:** The `SqlQueryInterpolatedStringHandler` uses an `ArrayPool<PendingHole>` to capture SQL text literals and typed interpolation holes without triggering per-hole heap allocations.
-*   **Compile-Time Routing:** When interception succeeds, the generator emits structural segments directly. Some shapes (UPSERT/MERGE, some window/set ops, dynamic fragments) emit `SQLIG10` and fall back to JIT `Append`.
+*   **Compile-Time Routing:** When interception succeeds, the generator emits structural segments directly. Some shapes (window/set ops, dynamic fragments, RETURNING) still emit `SQLIG10` and fall back to JIT `Append`. Handwritten UPSERT keeps structural column holes so Build rewriters can run.
 *   **Telemetry & Validation:** Read `db.LastBuildWasAotIntercepted` after `Build()`, or use `AssertAotIntercepted()` / `AssertJitFallback()` from `SqlInterpol.Testing.Xunit`.
 
-### JIT fallback (documented)
+### AOT vs CrossDialect (UPSERT)
 
 | Shape | AOT interceptor | Cross-dialect rewrite |
 |-------|-----------------|------------------------|
 | Simple SELECT / DML without UPSERT | Usually intercepted | At `Build()` / emitter quoting |
-| Handwritten `ON CONFLICT` / UPSERT / MERGE | **JIT** (`SQLIG10`) | Yes — runtime rewriters (e.g. SQL Server → `MERGE`) |
+| Handwritten `ON CONFLICT` / UPSERT / MERGE | **Intercepted** (structural holes) | Yes — runtime rewriters at `Build()` (e.g. SQL Server → `MERGE`) |
 | `AppendUpsert` CRUD helper | Uses template cache (not interceptor SQL) | Via `SqlCrudTemplateCache` |
-
-Closing the UPSERT AOT emit gap is tracked in root `TODO.md` / Rank 7 (do not claim compile-time UPSERT transpile until `AssertAotIntercepted` passes on those suites).
 
 ```csharp
 var result = db.Append($"SELECT {p.Id} FROM {p}").Build();

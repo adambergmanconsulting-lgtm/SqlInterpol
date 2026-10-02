@@ -7,7 +7,7 @@
 - **Owns:** `CrossDialectSqlTranspilation`, rewriter cheat-sheet, dialect idioms.
 - **Options:** [configuration-options.md](configuration-options.md).
 - **Pipeline internals:** [pipeline-rewriters.md](pipeline-rewriters.md).
-- **AOT note:** CrossDialect UPSERT rewrite is runtime/JIT today — [performance-aot.md](performance-aot.md).
+- **AOT note:** handwritten UPSERT is AOT-intercepted; CrossDialect MERGE/ON CONFLICT rewrite still runs at `Build()` — [performance-aot.md](performance-aot.md).
 
 ## How It Works
 
