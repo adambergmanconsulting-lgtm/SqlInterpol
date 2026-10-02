@@ -10,5 +10,5 @@ Operational Rank 5 hygiene: keep this list honest against shipped code. Prefer C
 ## Done / retired
 
 * Add AppendUpsert — shipped (`SqlBuilderExtensions.AppendUpsert` + `IUpsertTestSuite` / `UpsertTemplateData`)
-* Unit tests for templates and Append… methods — template suites already cover Append/CRUD templates; further AppendLine(ISqlTemplate) seam tests optional later
+* Unit tests for templates and Append… methods — template suites exist; `TemplateAppendLineEquivalenceTests` covers `AppendLine(ISqlTemplate)`
 * EntityAutoAliasing = true by default — rejected (violates WYSIWYG)

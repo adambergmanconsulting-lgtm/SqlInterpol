@@ -7,6 +7,7 @@ For ultra-high-throughput hot paths, re-parsing interpolated strings on every re
 - **Owns:** `ISqlTemplate`, `db.Template(...)`, `Append`/`AppendLine` of templates, CRUD template cache.
 - **Analyzer:** `SQLIA07` — keep templates on static paths ([analyzers.md](analyzers.md)).
 - **Builder entry API:** [core-query-building.md](core-query-building.md).
+- **Proof:** `TemplateAppendLineEquivalenceTests` covers `AppendLine(ISqlTemplate)` ≡ `Append` + newline.
 
 ---
 
