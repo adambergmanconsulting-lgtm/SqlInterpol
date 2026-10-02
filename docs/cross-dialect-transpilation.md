@@ -2,6 +2,12 @@
 
 `SqlInterpol` includes a built-in compilation pipeline that automatically rewrites standard SQL syntax into database-specific idioms. Write your queries once using unified, canonical syntax, and the engine seamlessly translates identifiers, parameters, clauses, and DML operations for your target database.
 
+## Fast path (read first)
+
+- **Owns:** `CrossDialectSqlTranspilation`, rewriter cheat-sheet, dialect idioms.
+- **Options:** [configuration-options.md](configuration-options.md).
+- **Pipeline internals:** [pipeline-rewriters.md](pipeline-rewriters.md).
+
 ## How It Works
 
 During query compilation, the engine passes parsed query segments through a pipeline of **Rewriters**. These rewriters inspect the query structure for dialect-specific incompatibilities and adjust the query segments before generating final SQL string outputs.

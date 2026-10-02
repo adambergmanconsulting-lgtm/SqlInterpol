@@ -2,6 +2,18 @@
 
 ![CI](https://github.com/jimmieulenius/SqlInterpol/actions/workflows/ci.yaml/badge.svg) ![CD](https://github.com/jimmieulenius/SqlInterpol/actions/workflows/cd.yaml/badge.svg) ![NuGet Version](https://img.shields.io/nuget/v/SqlInterpol?style=flat-square) ![NuGet Downloads](https://img.shields.io/nuget/dt/SqlInterpol?style=flat-square) ![License](https://img.shields.io/github/license/jimmieulenius/SqlInterpol?style=flat-square)
 
+## Start here by intent (Railkit)
+
+| Intent | Open |
+|--------|------|
+| Install / adopt | [docs/00-QUICK-START.md](docs/00-QUICK-START.md) ; [docs/ADOPTION.md](docs/ADOPTION.md) |
+| Implement / fix / refactor | [AGENTS.md](AGENTS.md) → [docs/CANONICAL-SOURCES.md](docs/CANONICAL-SOURCES.md) |
+| CI / merge | [docs/ops/ci-flow.md](docs/ops/ci-flow.md) |
+| Code-first / tribal → code | [docs/CODE-FIRST.md](docs/CODE-FIRST.md) |
+| Product docs (library) | [docs/getting-started.md](docs/getting-started.md) |
+
+**Governing checks:** `npm run check:railkit` (Node 20+). Product build remains .NET (`dotnet`).
+
 **SqlInterpol** is a next-generation, zero-boilerplate SQL Query Builder for .NET 8+.
 
 It leverages C# 12 Interpolated String Handlers to let you write WYSIWYG (What You See Is What You Get) SQL queries with flawless type-safety, automatic parameterization, and cross-dialect SQL rendering.
