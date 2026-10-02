@@ -2,11 +2,11 @@
 
 `SqlInterpol` achieves database-agnostic query generation by decoupling structural intent from string representation. The library relies on a tokenized pipeline to process and transpile queries dynamically.
 
-## Fast path (read first)
+## At a glance
 
-- **Owns:** custom `ISqlDialect`, `ISqlExtension`, packaging a dialect plugin.
-- **Rewriters / pipeline internals:** [pipeline-rewriters.md](pipeline-rewriters.md).
-- **Built-in dialect factories:** [core-query-building.md](core-query-building.md).
+- Custom `ISqlDialect`, `ISqlExtension`, and packaging a dialect plugin (below).
+- Rewriters / pipeline extension points: [pipeline-rewriters.md](pipeline-rewriters.md).
+- Built-in dialect factories: [core-query-building.md](core-query-building.md).
 
 ## Why Create a Custom Dialect?
 

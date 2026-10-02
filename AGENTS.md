@@ -1,10 +1,25 @@
 # Code work entry (Railkit)
 
-**Not the session start table.** If the job is not implement / fix / refactor, use [README.md](README.md#start-here-by-intent). This file is only the **code work** path.
+**Not the session start table.** If the job is not implement / fix / refactor, use [README.md](README.md#contributing--agents). This file is only the **code work** path.
+
+## Documentation audience (NuGet / wiki)
+
+SqlInterpol ships as a **NuGet package**. Wiki sync allowlists **consumer** topic guides only (see `.github/workflows/sync-wiki.yaml`).
+
+| Audience | Home | Wiki? |
+|----------|------|-------|
+| **Consumer** (package users) | Allowlisted `docs/*.md` topic guides | Yes |
+| **Contributor** (improve package / situating) | This file, `.cursor/rules/`, `TODO.md`, PR text, `docs/ops/`, `docs/engineering/`, `docs/CANONICAL-SOURCES.md`, kit meta docs | No |
+
+**Rule:** Consumer pages document *observed behavior* and *public API/packages*. Do **not** put `src/...` paths, host test suite/class names, Spec/Shared hosting notes, CANONICAL/ops/CODE-FIRST situating, or ratchets in wiki topic guides.
+
+**When behavior ships:** consumer note in the matching topic guide; proof/harness detail in the PR, `TODO.md`, or contributor docs.
+
+Cursor rule: `.cursor/rules/documentation-audience.mdc`. Kit handover: [docs/ops/kit-feedback-doc-audience.md](docs/ops/kit-feedback-doc-audience.md).
 
 ## Before you edit (situating)
 
-**Situating** = open the one right owner doc before you change code.
+**Situating** = open the one right **contributor** owner doc before you change code. For **consumer** topic edits, also obey [Documentation audience](#documentation-audience-nuget--wiki).
 
 **Gate:** Do not write code until you have read that owner's Fast path (or named section). Skip only for one-line typos or renames with no behavior change. If you are blocked or the seam changes, read further or open one new CANONICAL row.
 
@@ -34,6 +49,7 @@ If an agent is editing: **do the work** — fix must/should issues, run skills a
 - **Size budgets (ratchets):** extract and tighten; do not raise `architecture-ratchet` ceilings to pass CI.
 - **Thin boundaries:** HTTP/UI shells parse and call; domain modules own persistence and side effects ([application-layering.md](docs/engineering/architecture/application-layering.md)).
 - **Wrap-up:** when exports change, run unused-export / Knip-class if wired; always run `npm run check:architecture` (and doc checks when docs change) and fix in-tree. Order: [ADOPTION.md](docs/ADOPTION.md#correct-sequence).
+- **Docs:** prefer Spec / existing host harnesses over parallel twin suites; never invent a second documentation tree for the same audience.
 
 ## Kit maintenance
 

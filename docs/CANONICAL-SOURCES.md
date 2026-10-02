@@ -10,7 +10,8 @@
 
 - **Pick one task row** below — at most one owner doc per task.
 - **Who wins when docs disagree:** [DOCUMENTATION-PRINCIPLES.md — Authority](DOCUMENTATION-PRINCIPLES.md#authority-when-docs-disagree).
-- **This host:** SqlInterpol is a .NET SQL library (no product UI, no auth product). UI / auth rows are **n/a** (dated in [rank7-dated-queue.md](ops/rank7-dated-queue.md)).
+- **This host:** SqlInterpol is a .NET **NuGet** library. Wiki-synced topic guides are **consumer** docs; this file + `docs/ops/` + kit meta are **contributor** situating ([AGENTS.md](../AGENTS.md#documentation-audience-nuget--wiki)).
+- UI / auth rows are **n/a** (dated in [rank7-dated-queue.md](ops/rank7-dated-queue.md)).
 
 ## Core owners
 

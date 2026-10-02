@@ -2,10 +2,10 @@
 
 `SqlInterpol` ships a Roslyn Analyzer package (`SqlInterpol.Analyzers`) that provides real-time diagnostics in Visual Studio, Rider, and the `dotnet build` pipeline. The analyzers are included automatically when you install the core `SqlInterpol` package — no extra setup is needed.
 
-## Fast path (read first)
+## At a glance
 
-- **Owns:** diagnostic IDs (`SQLIA*`), severities, `.editorconfig` overrides.
-- **Template misuse (`SQLIA07`):** also [templates-caching.md](templates-caching.md).
+- Diagnostic IDs (`SQLIA*`), severities, and `.editorconfig` overrides (below).
+- Template misuse (`SQLIA07`): also [templates-caching.md](templates-caching.md).
 - Bundled with the core package — no separate install.
 
 Severities can be adjusted per-project via `.editorconfig` using standard Roslyn diagnostic suppression:

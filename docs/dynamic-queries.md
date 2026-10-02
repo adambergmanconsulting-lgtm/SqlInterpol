@@ -2,10 +2,10 @@
 
 The `SqlBuilder` is designed for stateful, forward-only query construction. You can incrementally build complex SQL statements based on runtime conditions (like optional search filters) while maintaining complete parameter safety and type-safe column references.
 
-## Fast path (read first)
+## At a glance
 
-- **Owns:** conditional `Append`, composable subqueries, dynamic WHERE patterns.
-- **Core API:** [core-query-building.md](core-query-building.md).
+- Conditional `Append`, composable subqueries, and dynamic WHERE patterns (below).
+- Core builder API: [core-query-building.md](core-query-building.md).
 
 ## Conditional Appending
 

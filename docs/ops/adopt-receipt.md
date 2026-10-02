@@ -9,6 +9,7 @@
 - Usefulness verdict is at the bottom of this file.
 - **Story + token ledger:** [railkit-apply-journal.md](railkit-apply-journal.md).
 - **Upstream PR scope:** LLM/agent situating rails only — **no SqlInterpol product behavior change** in the contribution branch.
+- **Doc audience:** wiki allowlist + consumer **At a glance** (no situating leaks). Kit handover: [kit-feedback-doc-audience.md](kit-feedback-doc-audience.md).
 
 **Host:** SqlInterpol (.NET library)  
 **Started:** 2026-10-02  
@@ -20,9 +21,10 @@
 | Criterion | Result |
 |-----------|--------|
 | Don't break existing code | Pass — contribution adds docs/scripts/CI wrappers only; no `src/` product edits on the PR branch |
-| Token efficiency (LLM sessions) | Improved situating — CANONICAL + Fast paths so agents open one owner doc instead of browsing |
+| Token efficiency (LLM sessions) | Improved situating — CANONICAL + Fast paths on **contributor** owners; consumer wiki pages stay package-facing |
 | Easier start (human + LLM) | Pass for foundation — intent → CANONICAL → Fast path; product spine = [getting-started.md](../getting-started.md) |
 | Instrumentation gaps | Pass for foundation — owners, [ci-flow.md](ci-flow.md), [tribal-inventory.md](tribal-inventory.md), [rank7-dated-queue.md](rank7-dated-queue.md) |
+| Consumer vs contributor docs | Pass after correction — wiki allowlist; no CANONICAL/ops/`src/` in wiki topic guides |
 
 ## Packages
 

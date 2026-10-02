@@ -4,10 +4,9 @@ Because `SqlInterpol` separates query building from database execution, you can 
 
 You can choose between writing standard, single-dialect unit tests or utilizing the advanced specification-driven framework for multi-database compatibility.
 
-## Fast path (read first)
+## At a glance
 
-- **Owns:** `SqlInterpol.Testing.Xunit`, `SqlTestCase`, offline assert patterns.
-- **Governing Rank 2 (when behavior moves):** [ops/testing-bar.md](ops/testing-bar.md).
+- `SqlInterpol.Testing.Xunit`, `SqlTestCase`, and offline assert patterns (below).
 
 ---
 

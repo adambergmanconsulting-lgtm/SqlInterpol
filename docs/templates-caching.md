@@ -2,11 +2,11 @@
 
 For ultra-high-throughput hot paths, re-parsing interpolated strings on every request introduces parsing and allocation overhead. `SqlInterpol` allows you to pre-compile query structures into reusable `ISqlTemplate` instances, executing them repeatedly with zero stream-processing overhead and $O(1)$ parameter binding.
 
-## Fast path (read first)
+## At a glance
 
-- **Owns:** `ISqlTemplate`, `db.Template(...)`, `Append`/`AppendLine` of templates, CRUD template cache.
-- **Analyzer:** `SQLIA07` — keep templates on static paths ([analyzers.md](analyzers.md)).
-- **Builder entry API:** [core-query-building.md](core-query-building.md).
+- `ISqlTemplate`, `db.Template(...)`, `Append` / `AppendLine` of templates, and the CRUD template cache.
+- Analyzer `SQLIA07` — keep templates on static paths ([analyzers.md](analyzers.md)).
+- Builder entry API: [core-query-building.md](core-query-building.md).
 
 ---
 

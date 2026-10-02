@@ -2,11 +2,10 @@
 
 When you build a query, the `SqlPipeline` orchestrates preprocessing and segment rewriting before delegating to the dialect's final renderer.
 
-## Fast path (read first)
+## At a glance
 
-- **Owns:** segments vs fragments, custom `ISqlFragment`, preprocessor/rewriter extension points.
-- **Custom dialect packaging:** [extensibility-dialects.md](extensibility-dialects.md).
-- **Code:** `src/SqlInterpol/Pipeline/` (preprocess, rewrite, render orchestration).
+- Segments vs fragments, custom `ISqlFragment`, and preprocessor/rewriter extension points (below).
+- Custom dialect packaging: [extensibility-dialects.md](extensibility-dialects.md).
 
 ## Segments vs. Fragments
 

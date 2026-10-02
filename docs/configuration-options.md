@@ -2,10 +2,10 @@
 
 `SqlInterpol` configuration is managed via `SqlInterpolOptions`, a C# `record` controlling parameter naming, collection rendering, enum formatting, cross-dialect transpilation, and compiler pipeline extensibility.
 
-## Fast path (read first)
+## At a glance
 
-- **Owns:** `SqlInterpolOptions`, default factory, per-builder overrides.
-- **Transpilation flag detail:** [cross-dialect-transpilation.md](cross-dialect-transpilation.md).
+- `SqlInterpolOptions`, default factory, and per-builder overrides (below).
+- Transpilation flag detail: [cross-dialect-transpilation.md](cross-dialect-transpilation.md).
 
 Option resolution follows a tiered fallback pattern:
 1. **Dialect Defaults:** Active database dialects (`ISqlDialect.GetDefaultOptions()`) provide baseline defaults (e.g., parameter prefixes and maximum parameter limits).

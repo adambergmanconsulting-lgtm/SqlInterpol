@@ -2,11 +2,11 @@
 
 The `SqlInterpol.EntityFrameworkCore` package bridges type-safe AST generation with EF Core's execution pipeline. It automatically handles dialect resolution via provider names and materializes native `DbParameter` instances for your active database connection.
 
-## Fast path (read first)
+## At a glance
 
-- **Owns:** EF Core `CreateSqlBuilder` / `FromSql` bridging.
-- **When to use EF vs SqlInterpol:** table below.
-- **Core builder:** [core-query-building.md](core-query-building.md).
+- EF Core `CreateSqlBuilder` / `FromSql` bridging (`SqlInterpol.EntityFrameworkCore`).
+- When to use EF vs SqlInterpol: table below.
+- Core builder: [core-query-building.md](core-query-building.md).
 
 ## When to Use SqlInterpol with EF Core
 

@@ -10,10 +10,11 @@
 ## Fast path (read first)
 
 - **One deciding owner** per definition or contract; indexes only point.
+- **Audience split (this host):** wiki allowlisted topic guides = **NuGet consumers**; situating / ranks / adopt = **contributor** trees (`docs/ops/`, CANONICAL, `AGENTS.md`). See [AGENTS.md — Documentation audience](../AGENTS.md#documentation-audience-nuget--wiki).
 - **Prefer owners over aggregates.** A human cache is a last resort when a named job cannot open one owner — not a second why (see [Layer honesty](#documentation-structure)).
 - **Why vs how:** procedures in scripts / CI / infra / skills; docs keep why.
 - **Plain language:** short direct sentences; everyday words; define kit terms once — see [Plain language](#plain-language).
-- **Fast path** on deciding homes (≤ ~25 non-empty lines under `## Fast path` or hub Read order).
+- **Fast path** on deciding **contributor** homes (≤ ~25 non-empty lines under `## Fast path` or hub Read order). Consumer topic pages use a short **At a glance** without kit situating links.
 - **Extend gates:** same structural fail twice → add a narrow mechanical check.
 
 ## Placement (new content)
