@@ -37,6 +37,7 @@ On 2026-10-02 this repo received a Railkit kit copy. The question: do shared Fas
 | 2026-10-02 | Upstream draft PR | Public fork; rails-only RFC | https://github.com/jimmieulenius/SqlInterpol/pull/4 |
 | 2026-10-02 | S4 Stress-test | FeatureGate extract + `SqlFeatureGateTests` (4 passed net8/net10); SqlBuilder 512→468 | branch `product/stress-feature-gate`; upstream draft PR #6 |
 | 2026-10-02 | S5 AppendLine(template) | Equivalence tests + templates-caching Fast path note | `product/stress-feature-gate` |
+| 2026-10-02 | S6 AOT×CrossDialect UPSERT slice | Characterize JIT fallback + honest docs; `AssertJitFallback` | `product/stress-feature-gate` |
 
 ### 2026-10-02 — S4 Stress-test rails (product)
 
@@ -54,6 +55,14 @@ On 2026-10-02 this repo received a Railkit kit copy. The question: do shared Fas
 - **Proof (Rank 2):** filter FeatureGate+AppendLine — Passed 6 on net8/net10
 - **Docs:** seam-tied only (one Fast path line) — not a doc rewrite
 - **Token note:** ledger S5
+
+### 2026-10-02 — S6 AOT×CrossDialect UPSERT (characterize + honest docs)
+
+- **Intent / CANONICAL owner opened:** [performance-aot.md](../performance-aot.md), [cross-dialect-transpilation.md](../cross-dialect-transpilation.md)
+- **Change:** `AotUpsertCrossDialectCharacterizationTests`; `AssertJitFallback`; soften AOT claims; SQLIA05 pragma on FeatureGate SqLite lock test
+- **Proof (Rank 2):** AOT+JIT projects — Passed 2×2 (SqlServer→MERGE via JIT; PostgreSql ON CONFLICT via JIT)
+- **Rails stress:** situating held; premise gap now test-locked without claiming AOT emit done
+- **Token note:** ledger S6
 
 ### Entry template
 
@@ -83,6 +92,7 @@ On 2026-10-02 this repo received a Railkit kit copy. The question: do shared Fas
 | S0–S3 | 2026-10-02 | Orient + adopt + Fast paths | C / pending A | — | Paste Cursor usage at campaign end |
 | S4 | 2026-10-02 | Stress-test FeatureGate product change | C / pending A | — | Situating: layering + core-query + pipeline Fast paths |
 | S5 | 2026-10-02 | AppendLine(template) tests | C / pending A | — | Situating: templates-caching Fast path |
+| S6 | 2026-10-02 | AOT×UPSERT characterize + docs | C / pending A | — | Situating: performance-aot + cross-dialect |
 
 **Campaign total:** _TBD from Cursor usage UI_
 

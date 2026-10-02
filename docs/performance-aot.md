@@ -5,20 +5,29 @@
 ## Fast path (read first)
 
 - **Owns:** AOT interceptors, `LastBuildWasAotIntercepted`, hot-path allocation notes.
-- **Templates:** [templates-caching.md](templates-caching.md).
-- **Generators live in:** `src/SqlInterpol.Generators`.
+- **Known gap:** handwritten `UPSERT` / `ON CONFLICT` / `MERGE` shapes force **JIT fallback** (`SQLIG10`) — CrossDialect rewrite still runs at `Build()`, not in the AOT emitter. Characterization: `AotUpsertCrossDialectCharacterizationTests`.
+- **Templates:** [templates-caching.md](templates-caching.md) (also not interceptor-targeted).
+- **Generators:** `src/SqlInterpol.Generators`.
 
 ---
 
 ## Ahead-Of-Time (AOT) Compilation
 
-For applications running on .NET 8 and .NET 9+, `SqlInterpol` automatically opts into compiler interceptors. This completely eliminates runtime string parsing overhead.
+For applications running on .NET 8+, `SqlInterpol` opts into Roslyn interceptors for many `Append` / `AppendLine` shapes. Intercepted queries skip runtime interpolated-string parsing; **dialect structural transpile for complex DML may still run in the shared `Build()` pipeline**.
 
 *   **Zero-Allocation Handlers:** The `SqlQueryInterpolatedStringHandler` uses an `ArrayPool<PendingHole>` to capture SQL text literals and typed interpolation holes without triggering per-hole heap allocations.
-*   **Compile-Time Routing:** The source generator maps your C# interpolated strings directly to highly optimized structural segments. The query bypasses the JIT-evaluation path entirely.
-*   **Telemetry & Validation:** The `SqlBuilder` exposes an `IsAotIntercepted` flag to verify successful compile-time routing. The `SQLIA07` analyzer (see [Analyzer Reference](analyzers.md)) warns when `Template()` is called on a non-static path. 
+*   **Compile-Time Routing:** When interception succeeds, the generator emits structural segments directly. Some shapes (UPSERT/MERGE, some window/set ops, dynamic fragments) emit `SQLIG10` and fall back to JIT `Append`.
+*   **Telemetry & Validation:** Read `db.LastBuildWasAotIntercepted` after `Build()`, or use `AssertAotIntercepted()` / `AssertJitFallback()` from `SqlInterpol.Testing.Xunit`.
 
-To detect whether a specific build was intercepted, read `db.LastBuildWasAotIntercepted` after calling `Build()`, or call `db.AssertAotIntercepted()` from the `SqlInterpol.Testing.Xunit` package in test code.
+### JIT fallback (documented)
+
+| Shape | AOT interceptor | Cross-dialect rewrite |
+|-------|-----------------|------------------------|
+| Simple SELECT / DML without UPSERT | Usually intercepted | At `Build()` / emitter quoting |
+| Handwritten `ON CONFLICT` / UPSERT / MERGE | **JIT** (`SQLIG10`) | Yes — runtime rewriters (e.g. SQL Server → `MERGE`) |
+| `AppendUpsert` CRUD helper | Uses template cache (not interceptor SQL) | Via `SqlCrudTemplateCache` |
+
+Closing the UPSERT AOT emit gap is tracked in root `TODO.md` / Rank 7 (do not claim compile-time UPSERT transpile until `AssertAotIntercepted` passes on those suites).
 
 ```csharp
 var result = db.Append($"SELECT {p.Id} FROM {p}").Build();

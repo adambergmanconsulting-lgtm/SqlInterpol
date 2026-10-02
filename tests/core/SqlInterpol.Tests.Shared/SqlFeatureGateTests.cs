@@ -77,11 +77,13 @@ public class SqlFeatureGateTests
         var db = SqlBuilder.SqLite();
         db.Entity<ProductStub>(out var p);
 
+#pragma warning disable SQLIA05 // Intentional: assert runtime SqlDialectException for unsupported lock
         var ex = Assert.Throws<SqlDialectException>(() =>
             db.Append($$"""
                 SELECT {{p.Id}}
                 FROM {{p}} FOR UPDATE
                 """).Build());
+#pragma warning restore SQLIA05
 
         Assert.Contains("FOR UPDATE", ex.Message);
     }
