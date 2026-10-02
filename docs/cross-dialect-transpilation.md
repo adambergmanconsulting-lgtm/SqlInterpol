@@ -2,12 +2,11 @@
 
 `SqlInterpol` includes a built-in compilation pipeline that automatically rewrites standard SQL syntax into database-specific idioms. Write your queries once using unified, canonical syntax, and the engine seamlessly translates identifiers, parameters, clauses, and DML operations for your target database.
 
-## Fast path (read first)
+## At a glance
 
-- **Owns:** `CrossDialectSqlTranspilation`, rewriter cheat-sheet, dialect idioms.
-- **Options:** [configuration-options.md](configuration-options.md).
-- **Pipeline internals:** [pipeline-rewriters.md](pipeline-rewriters.md).
-- **AOT note:** handwritten UPSERT is AOT-intercepted; CrossDialect MERGE/ON CONFLICT rewrite still runs at `Build()` — [performance-aot.md](performance-aot.md).
+- Toggle and options: [configuration-options.md](configuration-options.md) (`CrossDialectSqlTranspilation`).
+- Extending the pipeline: [pipeline-rewriters.md](pipeline-rewriters.md).
+- Handwritten UPSERT can be AOT-intercepted; CrossDialect MERGE / `ON CONFLICT` rewrite still runs at `Build()` — [performance-aot.md](performance-aot.md).
 
 ## How It Works
 
